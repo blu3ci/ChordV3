@@ -13,5 +13,11 @@
         "titleBar.border": "#f9ff8c",
         "titleBar.inactiveBackground": "#f9ff8c99",
         "titleBar.inactiveForeground": "#15202b99"
-    }
+    },
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none"
 }
