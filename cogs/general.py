@@ -9,6 +9,8 @@ log = setup_logger(__name__)
 class General(discord.Cog):
     def __init__(self, bot: discord.Bot) -> None:
         self.bot = bot
+        
+    @discord.slash_command()
 
     @commands.Cog.listener()
     async def on_ready(self):
