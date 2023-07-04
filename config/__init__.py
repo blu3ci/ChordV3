@@ -1,1 +1,1 @@
-from .config import * # noqa
+from .config import *  # noqa
