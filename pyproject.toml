@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "chordv3"
+version = "0.1.0"
+description = "Discord music bot with many features"
+authors = ["Anirudh <madadi.anirudh@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
