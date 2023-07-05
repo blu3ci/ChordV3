@@ -29,7 +29,7 @@ class Message(StrEnum):
     AUTHOR_NOT_IN_VC: str = "❌ You need to be connected to a voice channel"
     BOT_ALREADY_CONNECTED: str = "❌ I am already connected to a voice channel"
     BOT_NOT_IN_VC: str = "❌ I am not connected to any voice channels"
-    AUTHOR_HAS_TO_BE_IN_SAME_VC_AS_BOT: str = "❌ You need to be in the same voice channel as the bot"
+    AUTHOR_HAS_TO_BE_IN_SAME_VC_AS_BOT: str = "❌ You need to be in the same VC as the bot to use this"
     BOT_LEFT_VC: str = "✅ Left "
     SEARCHING: str = "🔍 Searching..."
     STOPPED: str = "⏹️ Stopped"
