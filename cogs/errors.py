@@ -1,7 +1,9 @@
 import discord
 from discord.ext import commands
 
+import config
 from logger import setup_logger
+from ui import ChordEmbed
 
 log = setup_logger(__name__)
 
@@ -14,10 +16,10 @@ class Errors(discord.Cog):
     async def on_application_command_error(
         self, context: discord.ApplicationContext, exception: discord.DiscordException
     ):
-        log.error(exception)
         if isinstance(exception, discord.ApplicationCommandInvokeError):
             if not context.author.voice:
-                await context.respond("join a voice channel dummy")
+                embed = ChordEmbed(config.Message.AUTHOR_NOT_IN_VC)
+                await context.respond(embed=embed)
 
     @commands.Cog.listener()
     async def on_ready(self):
