@@ -19,3 +19,4 @@ class CommandArgDescription(StrEnum):
 
 class Message(StrEnum):
     CHANGE_NICK: str = "✏️ Updated my nickname to "
+    CONNECTED_TO_VC = "✅ Connected to "

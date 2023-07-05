@@ -11,6 +11,15 @@ class Errors(discord.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
+    async def on_application_command_error(
+        self, context: discord.ApplicationContext, exception: discord.DiscordException
+    ):
+        log.error(exception)
+        if isinstance(exception, discord.ApplicationCommandInvokeError):
+            if not context.author.voice:
+                await context.respond("join a voice channel dummy")
+
+    @commands.Cog.listener()
     async def on_ready(self):
         log.info("%s cog loaded successfully" % __class__.__name__)
 

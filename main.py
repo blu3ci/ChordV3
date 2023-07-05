@@ -16,8 +16,9 @@ class ChordBot(discord.Bot):
         log.info("/%s has been executed by %s" % (context.command.name, context.author.name))
 
 
-bot = ChordBot()
+if __name__ == "__main__":
+    bot = ChordBot()
 
-bot.load_extensions("cogs")
+    bot.load_extensions("cogs")
 
-bot.run(config.BOT_TOKEN)
+    bot.run(config.BOT_TOKEN)

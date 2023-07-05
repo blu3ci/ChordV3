@@ -4,6 +4,7 @@ from discord.ext import commands
 import config
 import ui
 from logger import setup_logger
+from music import Player
 
 log = setup_logger(__name__)
 
@@ -23,6 +24,17 @@ class General(discord.Cog):
         await ctx.guild.me.edit(nick=nick)
 
         embed = ui.ChordEmbed(f"{config.Message.CHANGE_NICK} ``{nick}``")
+
+        await ctx.respond(embed=embed)
+
+    @discord.slash_command(description=config.CommandDescription.CONNECT)
+    async def connect(
+        self,
+        ctx: discord.ApplicationContext,
+    ):
+        await ctx.author.voice.channel.connect(cls=Player)
+
+        embed = ui.ChordEmbed(f"{config.Message.CONNECTED_TO_VC} ``{ctx.author.voice.channel.name}``")
 
         await ctx.respond(embed=embed)
 
