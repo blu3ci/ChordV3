@@ -20,6 +20,6 @@ class Song:
     duration: int
     uploader: str
     thumbnail: str
-    requester: str
     song_type: SongType
     context: discord.ApplicationContext | None = None
+    requester: str | None = None

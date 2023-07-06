@@ -5,6 +5,8 @@ from functools import partial
 import yt_dlp
 
 import config
+import utils
+from logger import setup_logger
 
 from .song import Song, SongType
 
@@ -18,19 +20,20 @@ class Downloader:
             "restrictfilenames": True,
             "noplaylist": True,
             "nocheckcertificate": True,
-            "ignoreerrors": False,
-            "logtostderr": False,
-            "quiet": True,
+            "logger": setup_logger("yt_dlp"),
             "no_warnings": True,
             "default_search": "auto",
             "source_address": "0.0.0.0",  # noqa
         }
 
     async def get_song(self, query: str) -> Song:
-        if self.is_url(query):
-            return await self._extract_url(query)
-        else:
-            return await self._extract_search(query)
+        try:
+            if self.is_url(query):
+                return await self._extract_url(query)
+            else:
+                return await self._extract_search(query)
+        except (IndexError, yt_dlp.utils.DownloadError):
+            raise utils.FailedToDownloadSongError(query)
 
     async def _extract_search(self, query: str) -> Song:
         with yt_dlp.YoutubeDL(self.ytdlp_opts) as ydl:
@@ -50,7 +53,6 @@ class Downloader:
             duration=result_data["duration"],
             uploader=result_data["uploader"],
             thumbnail=result_data["thumbnails"][0]["url"],
-            requester="Anirudh",
             song_type=self.get_song_type(url),
         )
 
@@ -68,7 +70,6 @@ class Downloader:
             duration=result_data["duration"],
             uploader=result_data["uploader"],
             thumbnail=result_data["thumbnails"][0]["url"],
-            requester="Anirudh",
             song_type=self.get_song_type(url),
         )
 

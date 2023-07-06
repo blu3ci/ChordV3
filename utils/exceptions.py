@@ -23,3 +23,9 @@ class BotAlreadyInVCError(Exception):
 
 class BotNotInVCError(Exception):
     pass
+
+
+class FailedToDownloadSongError(Exception):
+    def __init__(self, query: str) -> None:
+        self.query = query
+        super().__init__(query)

@@ -29,6 +29,15 @@ class Errors(discord.Cog):
         elif isinstance(exception.original, utils.BotNotInVCError):
             embed = ChordEmbed(config.Message.BOT_NOT_IN_VC)
             await context.respond(embed=embed)
+        elif isinstance(exception.original, utils.BotIsPlayingError):
+            embed = ChordEmbed(config.Message.BOT_IS_PLAYING)
+            await context.respond(embed=embed)
+        elif isinstance(exception.original, utils.BotNotPlayingError):
+            embed = ChordEmbed(config.Message.BOT_IS_NOT_PLAYING)
+            await context.respond(embed=embed)
+        elif isinstance(exception.original, utils.FailedToDownloadSongError):
+            embed = ChordEmbed(f"{config.Message.COULD_NOT_FIND_SONG}``{exception.original.query}``")
+            await context.respond(embed=embed)
         else:
             log.error(exception)
 

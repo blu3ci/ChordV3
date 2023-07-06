@@ -3,6 +3,7 @@ from discord.ext import commands
 
 import config
 import utils
+import ui
 from logger import setup_logger
 
 log = setup_logger(__name__)
@@ -26,6 +27,42 @@ class Music(discord.Cog):
             await self.bot.get_cog("General").connect(ctx, None)
 
         await ctx.voice_client.play(ctx, song)
+
+    @discord.slash_command(description=config.CommandDescription.STOP)
+    @utils.perform_pre_checks
+    async def stop(self, ctx: discord.ApplicationContext):
+        if not ctx.voice_client.is_playing():
+            raise utils.BotNotPlayingError
+
+        ctx.voice_client.stop()
+
+        embed = ui.ChordEmbed(config.Message.STOPPED)
+
+        await ctx.respond(embed=embed)
+
+    @discord.slash_command(description=config.CommandDescription.RESUME)
+    @utils.perform_pre_checks
+    async def resume(self, ctx: discord.ApplicationContext):
+        if not ctx.voice_client.is_paused():
+            raise utils.BotIsPlayingError
+
+        ctx.voice_client.resume()
+
+        embed = ui.ChordEmbed(config.Message.RESUMED)
+
+        await ctx.respond(embed=embed)
+        
+    @discord.slash_command(description=config.CommandDescription.PAUSE)
+    @utils.perform_pre_checks
+    async def pause(self, ctx: discord.ApplicationContext):
+        if ctx.voice_client.is_paused():
+            raise utils.BotNotPlayingError
+
+        ctx.voice_client.pause()
+
+        embed = ui.ChordEmbed(config.Message.PAUSED)
+
+        await ctx.respond(embed=embed)
 
     @commands.Cog.listener()
     async def on_ready(self):

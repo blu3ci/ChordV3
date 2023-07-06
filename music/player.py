@@ -39,6 +39,7 @@ class Player(discord.VoiceClient):
     async def play(self, ctx: discord.ApplicationContext, query: str):
         song: Song = await self._downloader.get_song(query)
         song.context = ctx
+        song.requester = ctx.author.mention
 
         source = discord.FFmpegPCMAudio(
             song.audio_source_url,
