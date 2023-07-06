@@ -29,20 +29,11 @@ class Downloader:
     async def get_song(self, query: str) -> Song:
         try:
             if self.is_url(query):
-                return await self._extract_url(query)
+                result_data = await self._extract_url(query)
             else:
-                return await self._extract_search(query)
+                result_data = await self._extract_search(query)
         except (IndexError, yt_dlp.utils.DownloadError):
             raise utils.FailedToDownloadSongError(query)
-
-    async def _extract_search(self, query: str) -> Song:
-        with yt_dlp.YoutubeDL(self.ytdlp_opts) as ydl:
-            loop = asyncio.get_event_loop()
-            partial_func = partial(ydl.extract_info, f"ytsearch1:{query}", download=False)
-
-            result_data = await loop.run_in_executor(None, partial_func)
-
-        result_data = result_data["entries"][0]
 
         url = result_data["webpage_url"]
 
@@ -50,11 +41,18 @@ class Downloader:
             audio_source_url=result_data["url"],
             original_url=url,
             title=result_data["title"],
-            duration=result_data["duration"],
+            duration=result_data.get("duration", "🔴 LIVE"),
             uploader=result_data["uploader"],
             thumbnail=result_data["thumbnails"][0]["url"],
             song_type=self.get_song_type(url),
         )
+
+    async def _extract_search(self, query: str) -> Song:
+        result_data = await self._extract_url(f"ytsearch1:{query}")
+
+        result_data = result_data["entries"][0]
+
+        return result_data
 
     async def _extract_url(self, url: str) -> Song:
         with yt_dlp.YoutubeDL(self.ytdlp_opts) as ydl:
@@ -63,15 +61,7 @@ class Downloader:
 
             result_data = await loop.run_in_executor(None, partial_func)
 
-        return Song(
-            audio_source_url=result_data["url"],
-            original_url=url,
-            title=result_data["title"],
-            duration=result_data["duration"],
-            uploader=result_data["uploader"],
-            thumbnail=result_data["thumbnails"][0]["url"],
-            song_type=self.get_song_type(url),
-        )
+        return result_data
 
     def get_song_type(self, url: str) -> SongType:
         regexes = {

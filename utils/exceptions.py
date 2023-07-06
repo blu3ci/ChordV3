@@ -29,3 +29,7 @@ class FailedToDownloadSongError(Exception):
     def __init__(self, query: str) -> None:
         self.query = query
         super().__init__(query)
+
+
+class FailedToParseTimeFormatError(Exception):
+    pass

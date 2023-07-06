@@ -1,6 +1,8 @@
 import random
 from collections import deque
 
+import config
+
 from .song import Song
 
 
@@ -60,13 +62,17 @@ class Playlist:
     def next_song(self) -> Song | None:
         played_song = self._current
 
-        self._queue_history.appendleft(played_song)
+        if len(self._queue_history) > config.MAX_HISTORY_QUEUE_SIZE:
+            self._queue_history.pop()
 
-        if self._loop:
-            self._queue.appendleft(played_song)
+        if played_song is not None:
+            self._queue_history.appendleft(played_song)
 
-        if self._loop_all:
-            self._queue.append(played_song)
+            if self._loop:
+                self._queue.appendleft(played_song)
+
+            if self._loop_all:
+                self._queue.append(played_song)
 
         if len(self._queue) == 0:
             self._current = None

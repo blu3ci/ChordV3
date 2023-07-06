@@ -41,8 +41,14 @@ class Errors(discord.Cog):
         elif isinstance(exception.original, utils.FailedToDownloadSongError):
             embed = ChordEmbed(f"{config.Message.COULD_NOT_FIND_SONG}``{exception.original.query}``")
             await context.respond(embed=embed)
+        elif isinstance(exception.original, utils.FailedToParseTimeFormatError):
+            embed = ChordEmbed(config.Message.COULD_NOT_PARSE_TIMESTAMP)
+            await context.respond(embed=embed)
         else:
             log.error(exception)
+
+            embed = ChordEmbed(config.Message.SOMETHING_WENT_WRONG)
+            await context.respond(embed=embed)
 
     @commands.Cog.listener()
     async def on_ready(self):

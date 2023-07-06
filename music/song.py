@@ -17,7 +17,7 @@ class Song:
     audio_source_url: str
     original_url: str
     title: str
-    duration: int
+    duration: int | str
     uploader: str
     thumbnail: str
     song_type: SongType

@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 
 import discord
 
@@ -17,6 +18,7 @@ class Player(discord.VoiceClient):
     def __init__(self, client: discord.Bot, channel: discord.VoiceChannel):
         super().__init__(client, channel)
 
+        self.auto_disconnect = True
         self._volume: int = config.DEFAULT_VOLUME
 
         self._ffmpeg_options = {
@@ -49,6 +51,9 @@ class Player(discord.VoiceClient):
             return
 
         song: Song = self._playlist.next_song()
+        
+        if song is None:
+            return
 
         source = discord.FFmpegPCMAudio(
             song.audio_source_url,
@@ -69,6 +74,34 @@ class Player(discord.VoiceClient):
 
         await self.guild.change_voice_state(channel=channel, self_deaf=True)
 
+    async def seek(self, position: int) -> None:
+        await self._update_ffmpeg_options(before_options=f"-ss {position}")
+
+    async def _update_ffmpeg_options(self, before_options: str | None = None, options: str | None = None) -> None:
+        song: Song = self._playlist.current
+
+        ffmpeg_options = self._ffmpeg_options.copy()
+
+        old_before_options = ffmpeg_options["before_options"]
+        old_options = ffmpeg_options["options"]
+
+        ffmpeg_options.update(
+            {
+                "before_options": old_before_options + (f" {before_options}" if before_options else ""),
+                "options": old_options + (f" {options}" if options else ""),
+            }
+        )
+
+        self.source = discord.PCMVolumeTransformer(
+            discord.FFmpegPCMAudio(
+                song.audio_source_url,
+                executable=config.FFMPEG_EXEC_LOCATION,
+                before_options=ffmpeg_options["before_options"],
+                options=ffmpeg_options["options"],
+            ),
+            (float(self._volume) / 100.0),
+        )
+
     @property
     def volume(self) -> int:
         return self._volume
@@ -83,18 +116,21 @@ class Player(discord.VoiceClient):
         return self._playlist
 
     def _next_song_event(self) -> None:
-        if len(self._playlist) == 0:
-            return
-
         loop = self.client.loop
 
         loop.create_task(self.play())
 
     async def _voice_channel_timeout(self) -> None:
+        t1 = datetime.datetime.now()
         while True:
-            await asyncio.sleep(5)
+            await asyncio.sleep(2)
+
+            if not self.auto_disconnect:
+                continue
+
             if len(self.channel.members) == 1:
-                await asyncio.sleep(20)
-                if len(self.channel.members) == 1:
+                if (datetime.datetime.now() - t1).total_seconds() >= config.PLAYER_DISCONNECT_TIMEOUT:
                     await self.disconnect()
                     break
+            else:
+                t1 = datetime.datetime.now()

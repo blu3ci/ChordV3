@@ -12,6 +12,14 @@ class CommandDescription(StrEnum):
     SKIP: str = "Skip to the next song."
     PREV: str = "Play the previous song."
     VOLUME: str = "Gets/Sets the volume"
+    NO_DISCONNECT_MODE: str = "Prevents the bot from disconnecting (toggle)"
+    LOOP_SONG = "Loops the song (toggle)"
+    LOOP_PLAYLIST = "Loops the playlist (toggle)"
+    SHUFFLE = "Shuffles the playlist"
+    SEEK = "Seeks the playing song to the specified timestamp"
+    LYRICS = "Gets the lyrics of the current song or provided song"
+    FILTER = "Sets the filter for the current song"
+    NOW_PLAYING = "Displays the song that is currently playing"
 
 
 class CommandArgDescription(StrEnum):
@@ -47,7 +55,7 @@ class Message(StrEnum):
     VOLUME: str = "🔊 Volume is at "
     MUTED: str = "🔇 Muted"
     PLAYLIST_EMPTY: str = "❌ Playlist is empty"
-    SEEKED: str = "⏩ Moved  "
+    SEEKED: str = "⏩ Time set on the current song "
     COULD_NOT_FIND_LYRICS: str = "❌ Could not find the lyrics for this song"
     COULD_NOT_FIND_SONG: str = "❌ Could not find the song "
     COULD_NOT_PARSE_TIMESTAMP: str = "❌ Incorrect usage. Use the ``H:M:S`` format"
@@ -56,3 +64,6 @@ class Message(StrEnum):
     NO_PREV_SONG: str = "❌ There isn't a previous song to play"
     NOW_PLAYING: str = "🎵 Now Playing"
     QUEUED: str = "🎶 Queued"
+    SOMETHING_WENT_WRONG: str = "❌ Something went wrong... try again later"
+    NO_DISCONNECT_MODE_ON: str = "♾️ Enabled 24/7 mode"
+    NO_DISCONNECT_MODE_OFF: str = "♾️ Disabled 24/7 mode"
