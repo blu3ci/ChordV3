@@ -58,7 +58,7 @@ class General(discord.Cog):
     async def disconnect(self, ctx: discord.ApplicationContext):
         if not ctx.voice_client:
             raise utils.BotNotInVCError
-        
+
         embed = ui.ChordEmbed(f"{config.Message.BOT_LEFT_VC} ``{ctx.voice_client.channel.name}``")
 
         await ctx.respond(embed=embed)

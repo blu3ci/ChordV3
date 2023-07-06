@@ -2,8 +2,12 @@ import asyncio
 
 import discord
 
-import utils
+import config
+import ui
 from logger import setup_logger
+
+from .downloader import Downloader
+from .song import Song
 
 log = setup_logger(__name__)
 
@@ -12,8 +16,12 @@ class Player(discord.VoiceClient):
     def __init__(self, client: discord.Bot, channel: discord.VoiceChannel):
         super().__init__(client, channel)
 
-        self.client: discord.Bot = client
-        self.channel: discord.VoiceChannel = channel
+        self._ffmpeg_options = {
+            "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+            "options": "-vn",
+        }
+
+        self._downloader = Downloader()
 
         self._voice_channel_timeout_task: asyncio.Task = None
 
@@ -23,10 +31,26 @@ class Player(discord.VoiceClient):
         await self.channel.guild.change_voice_state(channel=self.channel, self_deaf=True)
 
         self._voice_channel_timeout_task = self.loop.create_task(self._voice_channel_timeout())
-        
+
     async def disconnect(self, *, force: bool = True) -> None:
         await super().disconnect(force=force)
         self._voice_channel_timeout_task.cancel()
+
+    async def play(self, ctx: discord.ApplicationContext, query: str):
+        song: Song = await self._downloader.get_song(query)
+        song.context = ctx
+
+        source = discord.FFmpegPCMAudio(
+            song.audio_source_url,
+            executable=config.FFMPEG_EXEC_LOCATION,
+            before_options=self._ffmpeg_options["before_options"],
+            options=self._ffmpeg_options["options"],
+        )
+
+        super().play(source)
+
+        embed = ui.NowPlayingEmbed(song)
+        await ctx.respond(embed=embed)
 
     async def move_to(self, channel: discord.VoiceChannel) -> None:
         await super().move_to(channel=channel)
@@ -36,8 +60,8 @@ class Player(discord.VoiceClient):
     async def _voice_channel_timeout(self):
         while True:
             await asyncio.sleep(5)
-            if len(self.client.get_channel(self.channel.id).members) == 1:
+            if len(self.channel.members) == 1:
                 await asyncio.sleep(20)
-                if len(self.client.get_channel(self.channel.id).members) == 1:
+                if len(self.channel.members) == 1:
                     await self.disconnect()
                     break

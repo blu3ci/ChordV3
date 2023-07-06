@@ -53,3 +53,5 @@ class Message(StrEnum):
     SET_FILTER: str = "📼 Set the filter to "
     PREV_SONG: str = "⏮️ Playing previous song"
     NO_PREV_SONG: str = "❌ There isn't a previous song to play"
+    NOW_PLAYING: str = "🎵 Now Playing"
+    QUEUED: str = "🎶 Queued"

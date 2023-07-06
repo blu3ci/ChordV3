@@ -9,10 +9,6 @@ class AuthorNotInBotVCError(DiscordException):
     pass
 
 
-class BotNotInVCError(DiscordException):
-    pass
-
-
 class BotNotPlayingError(DiscordException):
     pass
 
