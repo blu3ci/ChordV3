@@ -16,6 +16,8 @@ class Player(discord.VoiceClient):
     def __init__(self, client: discord.Bot, channel: discord.VoiceChannel):
         super().__init__(client, channel)
 
+        self._volume: int = config.DEFAULT_VOLUME
+
         self._ffmpeg_options = {
             "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
             "options": "-vn",
@@ -50,6 +52,8 @@ class Player(discord.VoiceClient):
 
         super().play(source)
 
+        self._player.source = discord.PCMVolumeTransformer(self._player.source, (float(self._volume) / 100.0))
+
         embed = ui.NowPlayingEmbed(song)
         await ctx.respond(embed=embed)
 
@@ -57,6 +61,15 @@ class Player(discord.VoiceClient):
         await super().move_to(channel=channel)
 
         await self.guild.change_voice_state(channel=channel, self_deaf=True)
+
+    @property
+    def volume(self) -> int:
+        return self._volume
+
+    @volume.setter
+    def volume(self, value: int) -> None:
+        self._volume = max(min(value, config.MAX_VOLUME), 0)
+        self._player.source.volume = float(self._volume) / 100.0
 
     async def _voice_channel_timeout(self):
         while True:

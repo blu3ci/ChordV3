@@ -64,6 +64,27 @@ class Music(discord.Cog):
 
         await ctx.respond(embed=embed)
 
+    @discord.slash_command(description=config.CommandDescription.VOLUME)
+    @utils.perform_pre_checks
+    async def volume(
+        self,
+        ctx: discord.ApplicationContext,
+        value: discord.Option(
+            int,
+            config.CommandArgDescription.VOLUME_VALUE,
+            required=False,
+            default=None,
+            min_value=0,
+            max_value=config.MAX_VOLUME,
+        ),
+    ):
+        if value:
+            ctx.voice_client.volume = value
+
+        embed = ui.ChordEmbed(f"{config.Message.VOLUME} ``{ctx.voice_client.volume}%``")
+
+        await ctx.respond(embed=embed)
+
     @commands.Cog.listener()
     async def on_ready(self):
         log.info("%s cog loaded successfully" % __class__.__name__)

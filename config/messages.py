@@ -11,6 +11,7 @@ class CommandDescription(StrEnum):
     PAUSE: str = "Pauses the song."
     SKIP: str = "Skip to the next song."
     PREV: str = "Play the previous song."
+    VOLUME: str = "Gets/Sets the volume"
 
 
 class CommandArgDescription(StrEnum):
