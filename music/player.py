@@ -51,7 +51,7 @@ class Player(discord.VoiceClient):
             return
 
         song: Song = self._playlist.next_song()
-        
+
         if song is None:
             return
 

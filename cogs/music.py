@@ -1,7 +1,8 @@
-import discord
-from discord.ext import commands
-from discord import Option
 import datetime
+
+import discord
+from discord import Option
+from discord.ext import commands
 
 import config
 import music
@@ -19,12 +20,7 @@ class Music(discord.Cog):
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
     async def play(
-        self,
-        ctx: discord.ApplicationContext,
-        song: Option(
-            str,
-            config.CommandArgDescription.PLAY_SONG,
-        ),
+        self, ctx: discord.ApplicationContext, song: Option(str, config.CommandArgDescription.PLAY_SONG,),
     ):
         await ctx.defer()
 
