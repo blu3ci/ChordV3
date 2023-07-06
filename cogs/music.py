@@ -2,8 +2,8 @@ import discord
 from discord.ext import commands
 
 import config
-import utils
 import ui
+import utils
 from logger import setup_logger
 
 log = setup_logger(__name__)
@@ -51,7 +51,7 @@ class Music(discord.Cog):
         embed = ui.ChordEmbed(config.Message.RESUMED)
 
         await ctx.respond(embed=embed)
-        
+
     @discord.slash_command(description=config.CommandDescription.PAUSE)
     @utils.perform_pre_checks
     async def pause(self, ctx: discord.ApplicationContext):
