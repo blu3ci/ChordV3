@@ -23,6 +23,9 @@ class Errors(discord.Cog):
         elif isinstance(exception.original, utils.AuthorNotInBotVCError):
             embed = ChordEmbed(config.Message.AUTHOR_HAS_TO_BE_IN_SAME_VC_AS_BOT)
             await context.respond(embed=embed)
+        elif isinstance(exception.original, utils.BotNotInVCError):
+            embed = ChordEmbed(config.Message.BOT_NOT_IN_VC)
+            await context.respond(embed=embed)
         elif isinstance(exception.original, utils.BotAlreadyInVCError):
             embed = ChordEmbed(config.Message.BOT_ALREADY_CONNECTED)
             await context.respond(embed=embed)

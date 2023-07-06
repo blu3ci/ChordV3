@@ -78,7 +78,10 @@ class Music(discord.Cog):
             max_value=config.MAX_VOLUME,
         ),
     ):
-        if value:
+        if not ctx.voice_client:
+            raise utils.BotNotInVCError
+        
+        if type(value) is int:
             ctx.voice_client.volume = value
 
         embed = ui.ChordEmbed(f"{config.Message.VOLUME} ``{ctx.voice_client.volume}%``")
