@@ -28,4 +28,4 @@ class NowPlayingEmbed(BasicEmbed):
 class QueuedEmbed(NowPlayingEmbed):
     def __init__(self, song: Song, *args, **kwargs):
         super().__init__(song, *args, **kwargs)
-        super().title = config.Message.QUEUED
+        self.title = config.Message.QUEUED

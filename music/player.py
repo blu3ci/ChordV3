@@ -7,6 +7,7 @@ import ui
 from logger import setup_logger
 
 from .downloader import Downloader
+from .playlist import Playlist
 from .song import Song
 
 log = setup_logger(__name__)
@@ -23,11 +24,12 @@ class Player(discord.VoiceClient):
             "options": "-vn",
         }
 
-        self._downloader = Downloader()
+        self.downloader = Downloader()
+        self._playlist = Playlist()
 
-        self._voice_channel_timeout_task: asyncio.Task = None
+        self._voice_channel_timeout_task: asyncio.Task | None = None
 
-    async def connect(self, *, reconnect: bool = True, timeout: float | None = None):
+    async def connect(self, *, reconnect: bool = True, timeout: float | None = None) -> None:
         await super().connect(reconnect=reconnect, timeout=timeout)
 
         await self.channel.guild.change_voice_state(channel=self.channel, self_deaf=True)
@@ -36,12 +38,17 @@ class Player(discord.VoiceClient):
 
     async def disconnect(self, *, force: bool = True) -> None:
         await super().disconnect(force=force)
+        self._playlist.reset()
         self._voice_channel_timeout_task.cancel()
 
-    async def play(self, ctx: discord.ApplicationContext, query: str):
-        song: Song = await self._downloader.get_song(query)
-        song.context = ctx
-        song.requester = ctx.author.mention
+    async def play(self) -> None:
+        if self.is_playing() or self.is_paused():
+            song: Song = self._playlist.queue[-1]
+            embed = ui.QueuedEmbed(song)
+            await song.context.respond(embed=embed)
+            return
+
+        song: Song = self._playlist.next_song()
 
         source = discord.FFmpegPCMAudio(
             song.audio_source_url,
@@ -50,12 +57,12 @@ class Player(discord.VoiceClient):
             options=self._ffmpeg_options["options"],
         )
 
-        super().play(source)
+        super().play(source, after=lambda e: self._next_song_event())
 
         self._player.source = discord.PCMVolumeTransformer(self._player.source, (float(self._volume) / 100.0))
 
         embed = ui.NowPlayingEmbed(song)
-        await ctx.respond(embed=embed)
+        await song.context.respond(embed=embed)
 
     async def move_to(self, channel: discord.VoiceChannel) -> None:
         await super().move_to(channel=channel)
@@ -71,7 +78,19 @@ class Player(discord.VoiceClient):
         self._volume = max(min(value, config.MAX_VOLUME), 0)
         self._player.source.volume = float(self._volume) / 100.0
 
-    async def _voice_channel_timeout(self):
+    @property
+    def playlist(self) -> Playlist:
+        return self._playlist
+
+    def _next_song_event(self) -> None:
+        if len(self._playlist) == 0:
+            return
+
+        loop = self.client.loop
+
+        loop.create_task(self.play())
+
+    async def _voice_channel_timeout(self) -> None:
         while True:
             await asyncio.sleep(5)
             if len(self.channel.members) == 1:

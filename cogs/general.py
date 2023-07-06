@@ -3,10 +3,10 @@ from discord import Option
 from discord.ext import commands
 
 import config
+import music
 import ui
 import utils
 from logger import setup_logger
-from music import Player
 
 log = setup_logger(__name__)
 
@@ -34,20 +34,18 @@ class General(discord.Cog):
     async def connect(
         self,
         ctx: discord.ApplicationContext,
-        channel: Option(
-            discord.VoiceChannel,
-            config.CommandArgDescription.CONNECT_CHANNEL,
-            required=False,
-        ),
+        channel: Option(discord.VoiceChannel, config.CommandArgDescription.CONNECT_CHANNEL, required=False,),
     ):
+        voice_client: music.Player = ctx.voice_client
+
         channel = channel or ctx.author.voice.channel
 
-        if ctx.voice_client and ctx.voice_client.channel == channel:
+        if voice_client and voice_client.channel == channel:
             raise utils.BotAlreadyInVCError
-        elif ctx.voice_client:
-            await ctx.voice_client.move_to(channel)
+        elif voice_client:
+            await voice_client.move_to(channel)
         else:
-            await channel.connect(cls=Player)
+            await channel.connect(cls=music.Player)
 
         embed = ui.ChordEmbed(f"{config.Message.CONNECTED_TO_VC} ``{channel.name}``")
 
@@ -56,13 +54,15 @@ class General(discord.Cog):
     @discord.slash_command(description=config.CommandDescription.DISCONNECT)
     @utils.perform_pre_checks
     async def disconnect(self, ctx: discord.ApplicationContext):
-        if not ctx.voice_client:
+        voice_client: music.Player = ctx.voice_client
+
+        if not voice_client:
             raise utils.BotNotInVCError
 
         embed = ui.ChordEmbed(f"{config.Message.BOT_LEFT_VC} ``{ctx.voice_client.channel.name}``")
 
         await ctx.respond(embed=embed)
-        await ctx.voice_client.disconnect()
+        await voice_client.disconnect()
 
     @commands.Cog.listener()
     async def on_ready(self):

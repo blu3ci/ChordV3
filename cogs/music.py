@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 import config
+import music
 import ui
 import utils
 from logger import setup_logger
@@ -16,37 +17,61 @@ class Music(discord.Cog):
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
     async def play(
-        self,
-        ctx: discord.ApplicationContext,
-        song: discord.Option(
-            str,
-            config.CommandArgDescription.PLAY_SONG,
-        ),
+        self, ctx: discord.ApplicationContext, song: discord.Option(str, config.CommandArgDescription.PLAY_SONG,),
     ):
+        await ctx.defer()
+        
         if not ctx.voice_client:
             await self.bot.get_cog("General").connect(ctx, None)
+            
+        voice_client: music.Player = ctx.voice_client
 
-        await ctx.voice_client.play(ctx, song)
+        song: music.Song = await voice_client.downloader.get_song(song)
+        song.context = ctx
+        song.requester = ctx.author.mention
+
+        voice_client.playlist.add_song(song)
+
+        await voice_client.play()
 
     @discord.slash_command(description=config.CommandDescription.STOP)
     @utils.perform_pre_checks
     async def stop(self, ctx: discord.ApplicationContext):
-        if not ctx.voice_client.is_playing():
+        voice_client: music.Player = ctx.voice_client
+
+        if not voice_client.is_playing():
             raise utils.BotNotPlayingError
 
-        ctx.voice_client.stop()
+        voice_client.playlist.clear()
+        voice_client.stop()
 
         embed = ui.ChordEmbed(config.Message.STOPPED)
+
+        await ctx.respond(embed=embed)
+        
+    @discord.slash_command(description=config.CommandDescription.SKIP)
+    @utils.perform_pre_checks
+    async def skip(self, ctx: discord.ApplicationContext):
+        voice_client: music.Player = ctx.voice_client
+
+        if not voice_client.is_playing():
+            raise utils.BotNotPlayingError
+
+        voice_client.stop()
+
+        embed = ui.ChordEmbed(config.Message.SKIPPED)
 
         await ctx.respond(embed=embed)
 
     @discord.slash_command(description=config.CommandDescription.RESUME)
     @utils.perform_pre_checks
     async def resume(self, ctx: discord.ApplicationContext):
-        if not ctx.voice_client.is_paused():
+        voice_client: music.Player = ctx.voice_client
+
+        if not voice_client.is_paused():
             raise utils.BotIsPlayingError
 
-        ctx.voice_client.resume()
+        voice_client.resume()
 
         embed = ui.ChordEmbed(config.Message.RESUMED)
 
@@ -55,10 +80,12 @@ class Music(discord.Cog):
     @discord.slash_command(description=config.CommandDescription.PAUSE)
     @utils.perform_pre_checks
     async def pause(self, ctx: discord.ApplicationContext):
-        if ctx.voice_client.is_paused():
+        voice_client: music.Player = ctx.voice_client
+
+        if voice_client.is_paused():
             raise utils.BotNotPlayingError
 
-        ctx.voice_client.pause()
+        voice_client.pause()
 
         embed = ui.ChordEmbed(config.Message.PAUSED)
 
@@ -78,11 +105,13 @@ class Music(discord.Cog):
             max_value=config.MAX_VOLUME,
         ),
     ):
-        if not ctx.voice_client:
+        voice_client: music.Player = ctx.voice_client
+
+        if not voice_client:
             raise utils.BotNotInVCError
-        
+
         if type(value) is int:
-            ctx.voice_client.volume = value
+            voice_client.volume = value
 
         embed = ui.ChordEmbed(f"{config.Message.VOLUME} ``{ctx.voice_client.volume}%``")
 
