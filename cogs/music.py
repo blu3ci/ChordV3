@@ -1,4 +1,5 @@
 import datetime
+import re
 
 import httpx
 import discord
@@ -31,6 +32,32 @@ class Music(discord.Cog):
             )
 
         return response.json()[1]
+
+    @staticmethod
+    async def get_lyrics(song: music.Song) -> dict:
+        song_regex = re.compile(r"\"defaultMetadata\":{\"simpleText\":\".+\"}")
+
+        if song.song_type == music.SongType.YOUTUBE:
+            async with httpx.AsyncClient() as aclient:
+                response = await aclient.get(song.original_url)
+            try:
+                track_name = (
+                    song_regex.findall(response.text)[0]
+                    .replace("}", "")
+                    .split(":")[2]
+                    .replace('"', "")
+                    .replace(",trackingParams", "")
+                    .split("(")[0]
+                )
+            except IndexError:
+                return None
+        else:
+            track_name = song.title
+
+        async with httpx.AsyncClient(base_url="https://some-random-api.com/lyrics?title=") as aclient:
+            response = await aclient.get(track_name)
+
+        return response.json()
 
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
@@ -269,6 +296,32 @@ class Music(discord.Cog):
         voice_client.playlist.shuffle()
 
         embed = ui.ChordEmbed(config.Message.SHUFFLED_PLAYLIST)
+
+        await ctx.respond(embed=embed)
+
+    @discord.slash_command(description=config.CommandDescription.LYRICS)
+    @utils.perform_pre_checks
+    async def lyrics(self, ctx: discord.ApplicationContext):
+        await ctx.defer()
+        
+        voice_client: music.Player = ctx.voice_client
+
+        if not voice_client:
+            raise utils.BotNotInVCError
+
+        if not voice_client.is_playing():
+            raise utils.BotNotPlayingError
+
+        song = voice_client.playlist.current
+
+        lyrics = await self.get_lyrics(song)
+
+        if lyrics is None:
+            embed = ui.ChordEmbed(config.Message.COULD_NOT_FIND_LYRICS)
+        else:
+            lyrics = lyrics["lyrics"]
+            embed = ui.BasicEmbed(title=song.title, description=lyrics)
+            embed.set_thumbnail(url=song.thumbnail)
 
         await ctx.respond(embed=embed)
 
