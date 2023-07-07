@@ -19,6 +19,9 @@ class ChordBot(discord.Bot):
 if __name__ == "__main__":
     bot = ChordBot()
 
-    bot.load_extensions("cogs")
+    cogs = ["cogs.errors", "cogs.general", "cogs.music"]
+
+    for cog in cogs:
+        bot.load_extension(cog)
 
     bot.run(config.BOT_TOKEN)
