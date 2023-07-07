@@ -20,7 +20,12 @@ class Music(discord.Cog):
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
     async def play(
-        self, ctx: discord.ApplicationContext, song: Option(str, config.CommandArgDescription.PLAY_SONG,),
+        self,
+        ctx: discord.ApplicationContext,
+        song: Option(
+            str,
+            config.CommandArgDescription.PLAY_SONG,
+        ),
     ):
         await ctx.defer()
 
@@ -213,6 +218,31 @@ class Music(discord.Cog):
             embed = ui.ChordEmbed(config.Message.PLAYLIST_LOOP_OFF)
 
         await ctx.respond(embed=embed)
+
+    @discord.slash_command(description=config.CommandDescription.NOW_PLAYING)
+    @utils.perform_pre_checks
+    async def np(self, ctx: discord.ApplicationContext):
+        voice_client: music.Player = ctx.voice_client
+
+        if not voice_client:
+            raise utils.BotNotInVCError
+
+        if not voice_client.is_playing():
+            raise utils.BotNotPlayingError
+
+        embed = ui.NowPlayingEmbed(voice_client.playlist.current)
+
+        await ctx.respond(embed=embed)
+
+    @discord.slash_command(description=config.CommandDescription.PLAYLIST)
+    @utils.perform_pre_checks
+    async def playlist(self, ctx: discord.ApplicationContext):
+        voice_client: music.Player = ctx.voice_client
+
+        if not voice_client:
+            raise utils.BotNotInVCError
+
+        await ui.PlaylistPaginatorView(ctx).send()
 
     @commands.Cog.listener()
     async def on_ready(self):

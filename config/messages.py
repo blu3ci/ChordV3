@@ -13,13 +13,14 @@ class CommandDescription(StrEnum):
     PREV: str = "Play the previous song."
     VOLUME: str = "Gets/Sets the volume"
     NO_DISCONNECT_MODE: str = "Prevents the bot from disconnecting (toggle)"
-    LOOP_SONG = "Loops the song (toggle)"
-    LOOP_PLAYLIST = "Loops the playlist (toggle)"
-    SHUFFLE = "Shuffles the playlist"
-    SEEK = "Seeks the playing song to the specified timestamp"
-    LYRICS = "Gets the lyrics of the current song or provided song"
-    FILTER = "Sets the filter for the current song"
-    NOW_PLAYING = "Displays the song that is currently playing"
+    LOOP_SONG: str = "Loops the song (toggle)"
+    LOOP_PLAYLIST: str = "Loops the playlist (toggle)"
+    SHUFFLE: str = "Shuffles the playlist"
+    SEEK: str = "Seeks the playing song to the specified timestamp"
+    LYRICS: str = "Gets the lyrics of the current song or provided song"
+    FILTER: str = "Sets the filter for the current song"
+    NOW_PLAYING: str = "Displays the song that is currently playing"
+    PLAYLIST: str = "Gets the current playlist"
 
 
 class CommandArgDescription(StrEnum):
