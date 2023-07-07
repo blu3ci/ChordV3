@@ -33,3 +33,7 @@ class FailedToDownloadSongError(Exception):
 
 class FailedToParseTimeFormatError(Exception):
     pass
+
+
+class InvalidPermissionsError(Exception):
+    pass

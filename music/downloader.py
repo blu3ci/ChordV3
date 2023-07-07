@@ -71,6 +71,17 @@ class Downloader:
             return await self._extract_spotify_playlist(url)
         elif self.get_song_type(url) == SongType.SPOTIFY_ALBUM:
             return await self._extract_spotify_album(url)
+        elif self.get_song_type(url) == SongType.CUSTOM:
+            return await self.convert_to_song(
+                {
+                    "url": url,
+                    "webpage_url": url,
+                    "title": "<Custom Song>",
+                    "uploader": "<No Uploader>",
+                    "thumbnail": "",
+                    "duration": "<No Duration>",
+                }
+            )
 
         with yt_dlp.YoutubeDL(self.ytdlp_opts) as ydl:
             loop = asyncio.get_event_loop()

@@ -44,11 +44,17 @@ class Errors(discord.Cog):
         elif isinstance(exception.original, utils.FailedToParseTimeFormatError):
             embed = ChordEmbed(config.Message.COULD_NOT_PARSE_TIMESTAMP)
             await context.respond(embed=embed)
+        elif isinstance(exception.original, utils.InvalidPermissionsError):
+            embed = ChordEmbed(config.Message.MISSING_PERMS)
+            await context.respond(embed=embed)
         else:
             log.error(exception)
 
-            embed = ChordEmbed(config.Message.SOMETHING_WENT_WRONG)
-            await context.respond(embed=embed)
+            try:
+                embed = ChordEmbed(config.Message.SOMETHING_WENT_WRONG)
+                await context.respond(embed=embed)
+            except discord.errors.NotFound:
+                pass
 
     @commands.Cog.listener()
     async def on_ready(self):

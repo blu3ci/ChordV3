@@ -41,7 +41,6 @@ class Message(StrEnum):
     BOT_NOT_IN_VC: str = "❌ I am not connected to any voice channels"
     AUTHOR_HAS_TO_BE_IN_SAME_VC_AS_BOT: str = "❌ You need to be in the same VC as the bot to use this"
     BOT_LEFT_VC: str = "✅ Left "
-    SEARCHING: str = "🔍 Searching..."
     STOPPED: str = "⏹️ Stopped"
     PAUSED: str = "⏸️ Paused"
     RESUMED: str = "▶️ Resumed"
@@ -68,3 +67,4 @@ class Message(StrEnum):
     SOMETHING_WENT_WRONG: str = "❌ Something went wrong... try again later"
     NO_DISCONNECT_MODE_ON: str = "♾️ Enabled 24/7 mode"
     NO_DISCONNECT_MODE_OFF: str = "♾️ Disabled 24/7 mode"
+    MISSING_PERMS: str = "❌ The bot is missing the required permissions to join this channel"

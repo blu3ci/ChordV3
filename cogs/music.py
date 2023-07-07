@@ -1,5 +1,6 @@
 import datetime
 
+import httpx
 import discord
 from discord import Option
 from discord.ext import commands
@@ -17,6 +18,20 @@ class Music(discord.Cog):
     def __init__(self, bot: discord.Bot) -> None:
         self.bot = bot
 
+    @staticmethod
+    async def get_video_results(ctx: discord.AutocompleteContext) -> list[str]:
+        song = ctx.options.get("song")
+
+        if not bool(song.strip()):
+            return []
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"http://suggestqueries.google.com/complete/search?client=youtube&ds=yt&client=firefox&q={song}"
+            )
+
+        return response.json()[1]
+
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
     async def play(
@@ -25,6 +40,7 @@ class Music(discord.Cog):
         song: Option(
             str,
             config.CommandArgDescription.PLAY_SONG,
+            autocomplete=discord.utils.basic_autocomplete(get_video_results),
         ),
     ):
         await ctx.defer()

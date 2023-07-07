@@ -128,7 +128,7 @@ class Player(discord.VoiceClient):
             if not self.auto_disconnect:
                 continue
 
-            if len(self.channel.members) == 1:
+            if len(self.channel.members) <= 1:
                 if (datetime.datetime.now() - t1).total_seconds() >= config.PLAYER_DISCONNECT_TIMEOUT:
                     await self.disconnect()
                     break

@@ -44,6 +44,11 @@ class General(discord.Cog):
 
         channel = channel or ctx.author.voice.channel
 
+        permissions = channel.permissions_for(ctx.guild.me)
+
+        if not permissions.connect or not permissions.view_channel or not permissions.speak:
+            raise utils.InvalidPermissionsError
+
         if voice_client and voice_client.channel == channel:
             raise utils.BotAlreadyInVCError
         elif voice_client:
