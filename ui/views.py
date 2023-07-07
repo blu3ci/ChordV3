@@ -5,9 +5,9 @@ from collections import deque
 import discord
 from discord.ui import View, button
 
-import ui
 import config
 import music
+import ui
 
 
 class PlaylistPaginatorView(View):
@@ -39,7 +39,7 @@ class PlaylistPaginatorView(View):
                         minutes=parser.minute,
                         seconds=parser.second,
                     ).total_seconds()
-        except ValueError:
+        except (ValueError, AttributeError):
             return str(datetime.timedelta(seconds=0))
         return str(datetime.timedelta(seconds=total_seconds))
 
@@ -63,7 +63,7 @@ class PlaylistPaginatorView(View):
             self.total_pages = 0
 
         if self.total_pages == 0:
-            embed = ui.ChordEmbed(config.EmbedDescriptions.PLAYLIST_EMPTY)
+            embed = ui.ChordEmbed(config.Message.PLAYLIST_EMPTY)
             self.total_pages = 1
         else:
             embed = ui.BasicEmbed(title="🎶 Playlist", description=formatted_playlist)

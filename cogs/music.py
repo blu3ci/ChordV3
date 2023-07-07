@@ -34,9 +34,7 @@ class Music(discord.Cog):
 
         voice_client: music.Player = ctx.voice_client
 
-        song: music.Song = await voice_client.downloader.get_song(song)
-        song.context = ctx
-        song.requester = ctx.author.mention
+        song: music.Song = await voice_client.downloader.get_song(ctx, song)
 
         voice_client.playlist.add_song(song)
 
@@ -243,6 +241,20 @@ class Music(discord.Cog):
             raise utils.BotNotInVCError
 
         await ui.PlaylistPaginatorView(ctx).send()
+
+    @discord.slash_command(description=config.CommandDescription.SHUFFLE)
+    @utils.perform_pre_checks
+    async def shuffle(self, ctx: discord.ApplicationContext):
+        voice_client: music.Player = ctx.voice_client
+
+        if not voice_client:
+            raise utils.BotNotInVCError
+
+        voice_client.playlist.shuffle()
+
+        embed = ui.ChordEmbed(config.Message.SHUFFLED_PLAYLIST)
+
+        await ctx.respond(embed=embed)
 
     @commands.Cog.listener()
     async def on_ready(self):

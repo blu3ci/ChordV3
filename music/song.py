@@ -6,8 +6,8 @@ import discord
 
 class SongType(Enum):
     YOUTUBE = auto()
-    SPOTIFY = auto()
-    SOTIFY_ALBUM = auto()
+    SPOTIFY_TRACK = auto()
+    SPOTIFY_ALBUM = auto()
     SPOTIFY_PLAYLIST = auto()
     CUSTOM = auto()
 
