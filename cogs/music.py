@@ -48,13 +48,16 @@ class Music(discord.Cog):
         if not genius_link:
             return None
 
-        genius = lyricsgenius.Genius(config.GENIUS_ACCESS_TOKEN)
+        genius = lyricsgenius.Genius(config.GENIUS_ACCESS_TOKEN, verbose=False)
 
         loop = asyncio.get_event_loop()
 
         partial_lyrics = partial(genius.lyrics, song_url=genius_link[0])
 
         lyrics = await loop.run_in_executor(None, partial_lyrics)
+        
+        if not lyrics:
+            return None
 
         lyrics = "\n".join(lyrics.split("\n")[1:])
 
