@@ -100,6 +100,9 @@ class Playlist:
     def clear(self) -> None:
         self._queue.clear()
 
+        self._loop = False
+        self._loop_all = False
+
     def reset(self) -> None:
         self._queue.clear()
         self._queue_history.clear()
