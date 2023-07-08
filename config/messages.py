@@ -17,7 +17,7 @@ class CommandDescription(StrEnum):
     LOOP_PLAYLIST: str = "Loops the playlist (toggle)"
     SHUFFLE: str = "Shuffles the playlist"
     SEEK: str = "Seeks the playing song to the specified timestamp"
-    LYRICS: str = "Gets the lyrics of the current song or provided song"
+    LYRICS: str = "Gets the lyrics of the current song"
     FILTER: str = "Sets the filter for the current song"
     NOW_PLAYING: str = "Displays the song that is currently playing"
     PLAYLIST: str = "Gets the current playlist"

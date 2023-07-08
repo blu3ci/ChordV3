@@ -1,8 +1,11 @@
 import datetime
 import re
+import asyncio
+from functools import partial
 
 import httpx
 import discord
+import lyricsgenius
 from discord import Option
 from discord.ext import commands
 
@@ -34,32 +37,33 @@ class Music(discord.Cog):
         return response.json()[1]
 
     @staticmethod
-    async def get_lyrics(song: music.Song) -> dict | None:
-        song_regex = re.compile(r"\"defaultMetadata\":{\"simpleText\":\".+\"}")
+    async def get_lyrics(search: str) -> str | None:
+        genius_regex = re.compile(r"https://genius.com/[\w-]+")
 
-        if song.song_type == music.SongType.YOUTUBE:
-            async with httpx.AsyncClient() as aclient:
-                response = await aclient.get(song.original_url)
-            try:
-                track_name = (
-                    song_regex.findall(response.text)[0]
-                    .replace("}", "")
-                    .split(":")[2]
-                    .replace('"', "")
-                    .replace(",trackingParams", "")
-                    .split("(")[0]
-                )
-            except IndexError:
-                return None
-        else:
-            track_name = song.title
+        async with httpx.AsyncClient() as aclient:
+            response = await aclient.get("https://www.google.com/search", params={"q": f"{search} site:genius.com"})
 
-        async with httpx.AsyncClient(base_url="https://some-random-api.com/lyrics?title=") as aclient:
-            response = await aclient.get(track_name)
+        genius_link = genius_regex.findall(response.text)
 
-        data = response.json()
-        
-        return data.get("lyrics", None)
+        if not genius_link:
+            return None
+
+        genius = lyricsgenius.Genius(config.GENIUS_ACCESS_TOKEN)
+
+        loop = asyncio.get_event_loop()
+
+        partial_lyrics = partial(genius.lyrics, song_url=genius_link[0])
+
+        lyrics = await loop.run_in_executor(None, partial_lyrics)
+
+        lyrics = "\n".join(lyrics.split("\n")[1:])
+
+        try:
+            lyrics = lyrics.replace(re.findall(r"([0-9]+Embed|Embed)", lyrics)[-1], "")
+        except IndexError:
+            pass
+
+        return lyrics
 
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
@@ -305,7 +309,7 @@ class Music(discord.Cog):
     @utils.perform_pre_checks
     async def lyrics(self, ctx: discord.ApplicationContext):
         await ctx.defer()
-        
+
         voice_client: music.Player = ctx.voice_client
 
         if not voice_client:
@@ -316,7 +320,7 @@ class Music(discord.Cog):
 
         song = voice_client.playlist.current
 
-        lyrics = await self.get_lyrics(song)
+        lyrics = await self.get_lyrics(song.title)
 
         if lyrics is None:
             embed = ui.ChordEmbed(config.Message.COULD_NOT_FIND_LYRICS)
