@@ -34,11 +34,7 @@ class General(discord.Cog):
     async def connect(
         self,
         ctx: discord.ApplicationContext,
-        channel: Option(
-            discord.VoiceChannel,
-            config.CommandArgDescription.CONNECT_CHANNEL,
-            required=False,
-        ),
+        channel: Option(discord.VoiceChannel, config.CommandArgDescription.CONNECT_CHANNEL, required=False,),
     ):
         voice_client: music.Player = ctx.voice_client
 

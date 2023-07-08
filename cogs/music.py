@@ -1,10 +1,10 @@
+import asyncio
 import datetime
 import re
-import asyncio
 from functools import partial
 
-import httpx
 import discord
+import httpx
 import lyricsgenius
 from discord import Option
 from discord.ext import commands
