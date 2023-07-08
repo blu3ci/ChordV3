@@ -34,7 +34,7 @@ class Music(discord.Cog):
         return response.json()[1]
 
     @staticmethod
-    async def get_lyrics(song: music.Song) -> dict:
+    async def get_lyrics(song: music.Song) -> dict | None:
         song_regex = re.compile(r"\"defaultMetadata\":{\"simpleText\":\".+\"}")
 
         if song.song_type == music.SongType.YOUTUBE:
@@ -57,7 +57,9 @@ class Music(discord.Cog):
         async with httpx.AsyncClient(base_url="https://some-random-api.com/lyrics?title=") as aclient:
             response = await aclient.get(track_name)
 
-        return response.json()
+        data = response.json()
+        
+        return data.get("lyrics", None)
 
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
@@ -319,7 +321,6 @@ class Music(discord.Cog):
         if lyrics is None:
             embed = ui.ChordEmbed(config.Message.COULD_NOT_FIND_LYRICS)
         else:
-            lyrics = lyrics["lyrics"]
             embed = ui.BasicEmbed(title=song.title, description=lyrics)
             embed.set_thumbnail(url=song.thumbnail)
 
