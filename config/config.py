@@ -20,5 +20,3 @@ SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID") or ""
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET") or ""
 
 SPOTIPY_CACHE_DIR = os.path.join(os.getcwd(), ".spotipy_cache")
-
-GENIUS_ACCESS_TOKEN = os.getenv("GENIUS_ACCESS_TOKEN") or ""

@@ -1,11 +1,9 @@
-import asyncio
 import datetime
 import re
-from functools import partial
 
 import discord
 import httpx
-import lyricsgenius
+from bs4 import BeautifulSoup
 from discord import Option
 from discord.ext import commands
 
@@ -48,25 +46,22 @@ class Music(discord.Cog):
         if not genius_link:
             return None
 
-        genius = lyricsgenius.Genius(config.GENIUS_ACCESS_TOKEN, verbose=False)
+        async with httpx.AsyncClient() as aclient:
+            response = await aclient.get(genius_link[0])
 
-        loop = asyncio.get_event_loop()
+        with open("stuff.html", "w", encoding="utf-8") as f:
+            f.write(response.text)
 
-        partial_lyrics = partial(genius.lyrics, song_url=genius_link[0])
+        soup = BeautifulSoup(response.text.replace("<br/>", "\n"), "html.parser")
 
-        lyrics = await loop.run_in_executor(None, partial_lyrics)
-        
-        if not lyrics:
-            return None
+        verses = soup.find_all(class_="Lyrics__Container-sc-1ynbvzw-5")
 
-        lyrics = "\n".join(lyrics.split("\n")[1:])
+        lyrics = ""
 
-        try:
-            lyrics = lyrics.replace(re.findall(r"([0-9]+Embed|Embed)", lyrics)[-1], "")
-        except IndexError:
-            pass
+        for verse in verses:
+            lyrics += verse.get_text()
 
-        return lyrics
+        return lyrics if lyrics else None
 
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
