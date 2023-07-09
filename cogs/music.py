@@ -25,6 +25,16 @@ class Music(discord.Cog):
         song = ctx.options.get("song")
 
         if not bool(song.strip()):
+            voice_client: music.Player = None
+
+            for voice_client in ctx.bot.voice_clients:
+                if voice_client.channel in ctx.interaction.guild.channels:
+                    voice_client = voice_client
+
+            if voice_client:
+                history = [song.title[:100] for song in voice_client.playlist.queue_history]
+                return history
+
             return []
 
         async with httpx.AsyncClient() as client:
