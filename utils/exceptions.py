@@ -37,3 +37,9 @@ class FailedToParseTimeFormatError(Exception):
 
 class InvalidPermissionsError(Exception):
     pass
+
+
+class InvalidInputError(Exception):
+    def __init__(self, value: str) -> None:
+        self.value = value
+        super().__init__(value)

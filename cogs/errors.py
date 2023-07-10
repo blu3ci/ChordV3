@@ -47,6 +47,9 @@ class Errors(discord.Cog):
         elif isinstance(exception.original, utils.InvalidPermissionsError):
             embed = ChordEmbed(config.Message.MISSING_PERMS)
             await context.respond(embed=embed)
+        elif isinstance(exception.original, utils.InvalidInputError):
+            embed = ChordEmbed(f"{config.Message.INVALID_INPUT}``{exception.original.value}``")
+            await context.respond(embed=embed)
         else:
             log.error(exception)
 

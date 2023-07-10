@@ -21,15 +21,30 @@ class Player(discord.VoiceClient):
         self.auto_disconnect = True
         self._volume: int = config.DEFAULT_VOLUME
 
-        self._ffmpeg_options = {
-            "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-            "options": "-vn",
-        }
+        self._ffmpeg_options = config.FFMPEG_OPTIONS.copy()
 
         self.downloader = Downloader()
         self._playlist = Playlist()
 
         self._voice_channel_timeout_task: asyncio.Task | None = None
+
+        self._player_start_time: datetime.datetime | None = None
+
+    @property
+    def get_player_position(self) -> int:
+        if not self.is_playing():
+            return 0
+
+        args: list[str] = self.source.original._process.args
+        seek_time = 0
+
+        for index, arg in enumerate(args):
+            if arg == "-ss":
+                seek_time = int(args[index + 1])
+
+        duration = (datetime.datetime.now() - self._player_start_time).total_seconds()
+
+        return int(duration + seek_time)
 
     async def connect(self, *, reconnect: bool = True, timeout: float | None = None) -> None:
         await super().connect(reconnect=reconnect, timeout=timeout)
@@ -64,6 +79,8 @@ class Player(discord.VoiceClient):
 
         super().play(source, after=lambda e: self._next_song_event())
 
+        self._player_start_time = datetime.datetime.now()
+
         self._player.source = discord.PCMVolumeTransformer(self._player.source, (float(self._volume) / 100.0))
 
         embed = ui.NowPlayingEmbed(song)
@@ -75,12 +92,27 @@ class Player(discord.VoiceClient):
         await self.guild.change_voice_state(channel=channel, self_deaf=True)
 
     async def seek(self, position: int) -> None:
+        self._player_start_time = datetime.datetime.now()
         await self._update_ffmpeg_options(before_options=f"-ss {position}")
 
-    async def _update_ffmpeg_options(self, before_options: str | None = None, options: str | None = None) -> None:
+    async def set_effect(self, effect: str) -> None:
+        player_pos = self.get_player_position
+        await self._update_ffmpeg_options(
+            options=f'-af "{effect}"' if effect else "",
+            overwrite=True,
+        )
+        await self._update_ffmpeg_options(before_options=f"-ss {player_pos}")
+
+    async def _update_ffmpeg_options(
+        self, before_options: str | None = None, options: str | None = None, overwrite: bool = False
+    ) -> None:
         song: Song = self._playlist.current
 
-        ffmpeg_options = self._ffmpeg_options.copy()
+        if not overwrite:
+            ffmpeg_options = self._ffmpeg_options.copy()
+        else:
+            ffmpeg_options = self._ffmpeg_options
+            ffmpeg_options.update(config.FFMPEG_OPTIONS)
 
         old_before_options = ffmpeg_options["before_options"]
         old_options = ffmpeg_options["options"]

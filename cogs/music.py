@@ -32,7 +32,7 @@ class Music(discord.Cog):
                     voice_client = voice_client
 
             if voice_client:
-                history = [song.title[:100] for song in voice_client.playlist.queue_history]
+                history = [song.title[:100] for song in voice_client.playlist.queue_history][:25]
                 return history
 
             return []
@@ -335,6 +335,30 @@ class Music(discord.Cog):
         else:
             embed = ui.BasicEmbed(title=song.title, description=lyrics)
             embed.set_thumbnail(url=song.thumbnail)
+
+        await ctx.respond(embed=embed)
+
+    @discord.slash_command(description=config.CommandDescription.EFFECT)
+    @utils.perform_pre_checks
+    async def effect(
+        self,
+        ctx: discord.ApplicationContext,
+        effect: Option(str, config.CommandArgDescription.EFFECT, required=True, autocomplete=discord.utils.basic_autocomplete(config.EFFECTS)),
+    ):
+        voice_client: music.Player = ctx.voice_client
+
+        if not voice_client:
+            raise utils.BotNotInVCError
+
+        if not voice_client.is_playing():
+            raise utils.BotNotPlayingError
+
+        if effect not in config.EFFECTS.keys():
+            raise utils.InvalidInputError(effect)
+
+        await voice_client.set_effect(config.EFFECTS[effect])
+
+        embed = ui.ChordEmbed(f"{config.Message.EFFECT}{effect}")
 
         await ctx.respond(embed=embed)
 

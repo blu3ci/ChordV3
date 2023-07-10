@@ -18,7 +18,7 @@ class CommandDescription(StrEnum):
     SHUFFLE: str = "Shuffles the playlist"
     SEEK: str = "Seeks the playing song to the specified timestamp"
     LYRICS: str = "Gets the lyrics of the current song"
-    FILTER: str = "Sets the filter for the current song"
+    EFFECT: str = "Sets the effect for the current song"
     NOW_PLAYING: str = "Displays the song that is currently playing"
     PLAYLIST: str = "Gets the current playlist"
 
@@ -30,7 +30,7 @@ class CommandArgDescription(StrEnum):
     SONG_NAME: str = "Name of the song"
     VOLUME_VALUE: str = "Volume percentage"
     SEEK: str = "Timestamp to seek to. Ex: 0:2:50"
-    FILTER: str = "Filter to apply to the song"
+    EFFECT: str = "Effect to apply to the song"
 
 
 class Message(StrEnum):
@@ -59,7 +59,7 @@ class Message(StrEnum):
     COULD_NOT_FIND_LYRICS: str = "❌ Could not find the lyrics for this song"
     COULD_NOT_FIND_SONG: str = "❌ Could not find the song "
     COULD_NOT_PARSE_TIMESTAMP: str = "❌ Incorrect usage. Use the ``H:M:S`` format"
-    SET_FILTER: str = "📼 Set the filter to "
+    EFFECT: str = "📼 Set the effect to "
     PREV_SONG: str = "⏮️ Playing previous song"
     NO_PREV_SONG: str = "❌ There isn't a previous song to play"
     NOW_PLAYING: str = "🎵 Now Playing"
@@ -68,3 +68,4 @@ class Message(StrEnum):
     NO_DISCONNECT_MODE_ON: str = "♾️ Enabled 24/7 mode"
     NO_DISCONNECT_MODE_OFF: str = "♾️ Disabled 24/7 mode"
     MISSING_PERMS: str = "❌ The bot is missing the required permissions to join this channel"
+    INVALID_INPUT: str = "❌ Invalid input "
