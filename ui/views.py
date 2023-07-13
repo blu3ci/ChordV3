@@ -35,7 +35,9 @@ class PlaylistPaginatorView(View):
                 for duration in durations:
                     parser = datetime.datetime.strptime(duration, "%H:%M:%S")
                     total_seconds += datetime.timedelta(
-                        hours=parser.hour, minutes=parser.minute, seconds=parser.second,
+                        hours=parser.hour,
+                        minutes=parser.minute,
+                        seconds=parser.second,
                     ).total_seconds()
         except (ValueError, AttributeError):
             return str(datetime.timedelta(seconds=0))

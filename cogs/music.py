@@ -343,7 +343,12 @@ class Music(discord.Cog):
     async def effect(
         self,
         ctx: discord.ApplicationContext,
-        effect: Option(str, config.CommandArgDescription.EFFECT, required=True, autocomplete=discord.utils.basic_autocomplete(config.EFFECTS)),
+        effect: Option(
+            str,
+            config.CommandArgDescription.EFFECT,
+            required=True,
+            autocomplete=discord.utils.basic_autocomplete(config.EFFECTS),
+        ),
     ):
         voice_client: music.Player = ctx.voice_client
 

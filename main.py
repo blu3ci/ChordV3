@@ -1,3 +1,5 @@
+import logging
+
 import discord
 
 import config
@@ -11,9 +13,12 @@ class ChordBot(discord.Bot):
         await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="/play"))
 
         log.info("Successfully logged in as %s | id: %i" % (bot.user.name, bot.user.id))
+        log.info("Active in %i servers | %s" % (len(bot.guilds), ", ".join([guild.name for guild in bot.guilds])))
+
+        setup_logger("discord", level=logging.INFO)
 
     async def on_application_command(self, context: discord.ApplicationContext):
-        log.info("/%s has been executed by %s" % (context.command.name, context.author.name))
+        log.info("/%s has been executed by %s" % (context.command, context.author.name))
 
 
 if __name__ == "__main__":
