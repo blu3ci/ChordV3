@@ -31,6 +31,7 @@ class CommandArgDescription(StrEnum):
     VOLUME_VALUE: str = "Volume percentage"
     SEEK: str = "Timestamp to seek to. Ex: 0:2:50"
     EFFECT: str = "Effect to apply to the song"
+    SONG_LYRICS: str = "The song to get the lyrics for"
 
 
 class Message(StrEnum):

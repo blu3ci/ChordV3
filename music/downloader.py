@@ -105,26 +105,12 @@ class Downloader:
         return await self.convert_to_song(result_data)
 
     async def _extract_spotify_track(self, url: str) -> PartialSong:
-        base_url = "https://open.spotify.com/track/"
-
         try:
             results = self.spotify_api.track(url)
         except SpotifyException:
             raise utils.FailedToDownloadSongError(url)
 
-        artists = ", ".join([artist.get("name") for artist in results["artists"]])
-        artists = artists[: len(artists)]
-
-        return PartialSong(
-            original_url=base_url + results["album"]["id"],
-            title=results["name"],
-            duration=int(results["duration_ms"] / 1000),
-            uploader=artists,
-            thumbnail=results["album"]["images"][0]["url"],
-            song_type=SongType.SPOTIFY_TRACK,
-            context=self.ctx,
-            requester=self.ctx.author.mention,
-        )
+        return self.convert_to_partial_spotify_song(results)
 
     async def _extract_spotify_playlist(self, url: str) -> list[PartialSong]:
         try:
@@ -132,7 +118,13 @@ class Downloader:
         except SpotifyException:
             raise utils.FailedToDownloadSongError(url)
 
-        coros = [self._extract_spotify_track(track["track"]["uri"]) for track in results["items"]]
+        tracks = results["items"]
+
+        while results["next"]:
+            results = self.spotify_api.next(results)
+            tracks.extend(results["items"])
+
+        coros = [self.convert_to_partial_spotify_song(track["track"]) for track in tracks]
 
         songs: list[PartialSong] = await asyncio.gather(*coros)
 
@@ -144,9 +136,22 @@ class Downloader:
         except SpotifyException:
             raise utils.FailedToDownloadSongError(url)
 
-        coros = [self._extract_spotify_track(track["uri"]) for track in results["tracks"]["items"]]
+        thumbnail = results["images"][0]["url"]
+
+        tracks = results["tracks"]["items"]
+
+        results = results["tracks"]
+
+        while results["next"]:
+            results = self.spotify_api.next(results)
+            tracks.extend(results["items"])
+
+        coros = [self.convert_to_partial_spotify_song(track) for track in tracks]
 
         songs: list[PartialSong] = await asyncio.gather(*coros)
+
+        for song in songs:
+            song.thumbnail = thumbnail
 
         return songs
 
@@ -164,6 +169,33 @@ class Downloader:
             context=self.ctx,
             requester=self.ctx.author.mention,
         )
+
+    async def convert_to_partial_spotify_song(self, result_data: dict) -> PartialSong:
+        artists = ", ".join([artist["name"] for artist in result_data["artists"]])
+        artists = artists[: len(artists)]
+
+        try:
+            return PartialSong(
+                original_url=result_data["album"]["external_urls"]["spotify"],
+                title=result_data["name"],
+                duration=int(result_data["duration_ms"] / 1000),
+                uploader=artists,
+                thumbnail=result_data["album"]["images"][0]["url"],
+                song_type=SongType.SPOTIFY_TRACK,
+                context=self.ctx,
+                requester=self.ctx.author.mention,
+            )
+        except KeyError:
+            return PartialSong(
+                original_url=result_data["external_urls"]["spotify"],
+                title=result_data["name"],
+                duration=int(result_data["duration_ms"] / 1000),
+                uploader=artists,
+                thumbnail=None,
+                song_type=SongType.SPOTIFY_TRACK,
+                context=self.ctx,
+                requester=self.ctx.author.mention,
+            )
 
     def get_song_type(self, url: str) -> SongType:
         regexes = {

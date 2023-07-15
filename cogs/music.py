@@ -334,11 +334,25 @@ class Music(discord.Cog):
 
         if lyrics is None:
             embed = ui.ChordEmbed(config.Message.COULD_NOT_FIND_LYRICS)
-        else:
-            embed = ui.BasicEmbed(title=song.title, description=lyrics)
-            embed.set_thumbnail(url=song.thumbnail)
+            await ctx.respond(embed=embed)
+            return
 
-        await ctx.respond(embed=embed)
+        lyrics_embeds = []
+
+        max_characters = 4096
+
+        for i in range(int(len(lyrics) / max_characters) + 1):
+            lyrics_section = lyrics[i * max_characters : (i + 1) * max_characters]
+
+            if i == 0:
+                embed = ui.BasicEmbed(title=song.title, description=lyrics_section)
+                embed.set_thumbnail(url=song.thumbnail)
+            else:
+                embed = ui.BasicEmbed(description=lyrics_section)
+
+            lyrics_embeds.append(embed)
+
+        await ctx.respond(embeds=lyrics_embeds)
 
     @discord.slash_command(description=config.CommandDescription.EFFECT)
     @utils.perform_pre_checks
