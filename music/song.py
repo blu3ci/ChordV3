@@ -23,3 +23,16 @@ class Song:
     song_type: SongType
     context: discord.ApplicationContext | None = None
     requester: str | None = None
+    query: str | None = None
+
+
+@dataclass
+class PartialSong:
+    original_url: str
+    title: str
+    duration: int
+    uploader: str
+    thumbnail: str
+    song_type: SongType
+    context: discord.ApplicationContext | None = None
+    requester: str | None = None

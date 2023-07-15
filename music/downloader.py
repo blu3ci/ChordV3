@@ -1,5 +1,6 @@
 import asyncio
 import re
+from collections import deque
 from functools import partial
 
 import discord
@@ -12,7 +13,7 @@ import config
 import utils
 from logger import setup_logger
 
-from .song import Song, SongType
+from .song import PartialSong, Song, SongType
 
 
 class Downloader:
@@ -38,18 +39,30 @@ class Downloader:
             )
         )
 
-    async def get_song(self, ctx: discord.ApplicationContext, query: str) -> Song:
+    async def get_song(self, ctx: discord.ApplicationContext, query: str) -> Song | PartialSong | list[PartialSong]:
         self.ctx = ctx
+
+        past_songs: deque[Song] = ctx.voice_client.playlist.queue_history
+
+        for song in past_songs:
+            if song.query == query:
+                song.context = ctx
+                song.requester = ctx.author.mention
+
+                return song
 
         try:
             if self.is_url(query):
-                result_data = await self._extract_url(query)
+                song = await self._extract_url(query)
             else:
-                result_data = await self._extract_search(query)
+                song = await self._extract_search(query)
         except (IndexError, yt_dlp.utils.DownloadError):
             raise utils.FailedToDownloadSongError(query)
 
-        return result_data
+        if isinstance(song, Song):
+            song.query = query
+
+        return song
 
     async def _extract_search(self, query: str) -> Song:
         url = f"ytsearch1:{query}"
@@ -91,7 +104,7 @@ class Downloader:
 
         return await self.convert_to_song(result_data)
 
-    async def _extract_spotify_track(self, url: str) -> Song:
+    async def _extract_spotify_track(self, url: str) -> PartialSong:
         base_url = "https://open.spotify.com/track/"
 
         try:
@@ -102,53 +115,40 @@ class Downloader:
         artists = ", ".join([artist.get("name") for artist in results["artists"]])
         artists = artists[: len(artists)]
 
-        title = results["name"]
+        return PartialSong(
+            original_url=base_url + results["album"]["id"],
+            title=results["name"],
+            duration=int(results["duration_ms"] / 1000),
+            uploader=artists,
+            thumbnail=results["album"]["images"][0]["url"],
+            song_type=SongType.SPOTIFY_TRACK,
+            context=self.ctx,
+            requester=self.ctx.author.mention,
+        )
 
-        song: Song = await self._extract_search(f"{title} by {artists} lyrics")
-
-        song.original_url = base_url + results["album"]["id"]
-        song.title = title
-        song.uploader = artists
-        song.thumbnail = results["album"]["images"][0]["url"]
-
-        return song
-
-    async def _extract_spotify_playlist(self, url: str) -> Song:
+    async def _extract_spotify_playlist(self, url: str) -> list[PartialSong]:
         try:
             results = self.spotify_api.playlist_items(url)
         except SpotifyException:
             raise utils.FailedToDownloadSongError(url)
 
-        tracks = [track["track"]["uri"] for track in results["items"]]
+        coros = [self._extract_spotify_track(track["track"]["uri"]) for track in results["items"]]
 
-        song: Song = await self._extract_spotify_track(tracks.pop(0))
+        songs: list[PartialSong] = await asyncio.gather(*coros)
 
-        asyncio.create_task(self._download_spotify_tracks_task(tracks))
+        return songs
 
-        return song
-
-    async def _extract_spotify_album(self, url: str) -> Song:
+    async def _extract_spotify_album(self, url: str) -> list[PartialSong]:
         try:
             results = self.spotify_api.album(url)
         except SpotifyException:
             raise utils.FailedToDownloadSongError(url)
 
-        tracks = [track["uri"] for track in results["tracks"]["items"]]
+        coros = [self._extract_spotify_track(track["uri"]) for track in results["tracks"]["items"]]
 
-        song: Song = await self._extract_spotify_track(tracks.pop(0))
+        songs: list[PartialSong] = await asyncio.gather(*coros)
 
-        asyncio.create_task(self._download_spotify_tracks_task(tracks))
-
-        return song
-
-    async def _download_spotify_tracks_task(self, tracks: list) -> None:
-        async def get_track(track):
-            song: Song = await self._extract_spotify_track(track)
-            self.ctx.voice_client.playlist.add_song(song)
-
-        coros = [get_track(track) for track in tracks]
-
-        await asyncio.gather(*coros)
+        return songs
 
     async def convert_to_song(self, result_data: dict) -> Song:
         url = result_data["webpage_url"]

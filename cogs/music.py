@@ -91,7 +91,9 @@ class Music(discord.Cog):
 
         voice_client: music.Player = ctx.voice_client
 
-        song: music.Song = await voice_client.downloader.get_song(ctx, song)
+        song: music.Song | music.PartialSong | list[music.PartialSong] = await voice_client.downloader.get_song(
+            ctx, song
+        )
 
         voice_client.playlist.add_song(song)
 

@@ -9,7 +9,7 @@ from logger import setup_logger
 
 from .downloader import Downloader
 from .playlist import Playlist
-from .song import Song
+from .song import PartialSong, Song
 
 log = setup_logger(__name__)
 
@@ -70,6 +70,8 @@ class Player(discord.VoiceClient):
         if song is None:
             return
 
+        song = await self.partial_song_to_song(song)
+
         source = discord.FFmpegPCMAudio(
             song.audio_source_url,
             executable=config.FFMPEG_EXEC_LOCATION,
@@ -98,8 +100,7 @@ class Player(discord.VoiceClient):
     async def set_effect(self, effect: str) -> None:
         player_pos = self.get_player_position
         await self._update_ffmpeg_options(
-            options=f'-af "{effect}"' if effect else "",
-            overwrite=True,
+            options=f'-af "{effect}"' if effect else "", overwrite=True,
         )
         await self._update_ffmpeg_options(before_options=f"-ss {player_pos}")
 
@@ -166,3 +167,20 @@ class Player(discord.VoiceClient):
                     break
             else:
                 t1 = datetime.datetime.now()
+
+    async def partial_song_to_song(self, partial_song: PartialSong | Song) -> Song:
+        if hasattr(partial_song, "audio_source_url"):
+            return partial_song
+
+        song: Song = await self.downloader.get_song(
+            partial_song.context, f"{partial_song.title} by {partial_song.uploader} lyrics"
+        )
+
+        song.title = partial_song.title
+        song.original_url = partial_song.original_url
+        song.uploader = partial_song.uploader
+        song.thumbnail = partial_song.thumbnail
+
+        self._playlist._current = song
+
+        return song

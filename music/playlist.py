@@ -91,8 +91,11 @@ class Playlist:
 
         return last_song
 
-    def add_song(self, song: Song) -> Song:
-        self._queue.append(song)
+    def add_song(self, song: Song | list[Song]) -> Song:
+        if isinstance(song, list):
+            self._queue.extend(song)
+        else:
+            self._queue.append(song)
 
     def shuffle(self) -> None:
         random.shuffle(self._queue)
