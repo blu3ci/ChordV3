@@ -45,7 +45,7 @@ class Downloader:
         past_songs: deque[Song] = ctx.voice_client.playlist.queue_history
 
         for song in past_songs:
-            if song.query == query:
+            if query in [song.query, song.title]:
                 song.context = ctx
                 song.requester = ctx.author.mention
 
