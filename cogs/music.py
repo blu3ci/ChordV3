@@ -84,7 +84,7 @@ class Music(discord.Cog):
         if voice_client is None:
             return []
 
-        return [f"{song.title}"[:100] for index, song in enumerate(voice_client.playlist.queue)]
+        return [f"{index + 2}. {song.title}"[:100] for index, song in enumerate(voice_client.playlist.queue)]
 
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
@@ -163,7 +163,7 @@ class Music(discord.Cog):
         if song not in queue_selection:
             raise utils.InvalidInputError(song)
 
-        song_index = int(song.split(".")[0]) - 1
+        song_index = int(song.split(".")[0]) - 2
         song_title = voice_client.playlist.queue[song_index].title
 
         voice_client.playlist.skipto(song_index)
