@@ -84,7 +84,7 @@ class Music(discord.Cog):
         if voice_client is None:
             return []
 
-        return [f"{index + 1}. {song.title}"[:100] for index, song in enumerate(voice_client.playlist.queue)]
+        return [f"{song.title}"[:100] for index, song in enumerate(voice_client.playlist.queue)]
 
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
