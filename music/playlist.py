@@ -97,6 +97,11 @@ class Playlist:
         else:
             self._queue.append(song)
 
+    def skipto(self, position: int) -> None:
+        for index, song in enumerate(list(self._queue)):
+            if index < position:
+                self._queue.remove(song)
+
     def shuffle(self) -> None:
         random.shuffle(self._queue)
 

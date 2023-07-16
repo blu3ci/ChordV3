@@ -73,6 +73,19 @@ class Music(discord.Cog):
 
         return lyrics if lyrics else None
 
+    @staticmethod
+    async def get_queue(ctx: discord.AutocompleteContext) -> list[str]:
+        voice_client: music.Player = None
+
+        for voice_client in ctx.bot.voice_clients:
+            if voice_client.channel in ctx.interaction.guild.channels:
+                voice_client = voice_client
+
+        if voice_client is None:
+            return []
+
+        return [f"{index + 1}. {song.title}"[:100] for index, song in enumerate(voice_client.playlist.queue)]
+
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
     async def play(
@@ -126,6 +139,37 @@ class Music(discord.Cog):
 
         embed = ui.ChordEmbed(config.Message.SKIPPED)
 
+        await ctx.respond(embed=embed)
+
+    @discord.slash_command(description=config.CommandDescription.SKIPTO)
+    @utils.perform_pre_checks
+    async def skipto(
+        self,
+        ctx: discord.ApplicationContext,
+        song: Option(
+            str,
+            config.CommandArgDescription.SKIPTO,
+            autocomplete=discord.utils.basic_autocomplete(get_queue),
+            required=True,
+        ),
+    ):
+        voice_client: music.Player = ctx.voice_client
+
+        if not voice_client.is_playing():
+            raise utils.BotNotPlayingError
+
+        queue_selection = await self.get_queue(await self.bot.get_autocomplete_context(ctx.interaction))
+
+        if song not in queue_selection:
+            raise utils.InvalidInputError(song)
+
+        song_index = int(song.split(".")[0]) - 1
+        song_title = voice_client.playlist.queue[song_index].title
+
+        voice_client.playlist.skipto(song_index)
+        voice_client.stop()
+
+        embed = ui.ChordEmbed(f"{config.Message.SKIPPEDTO} ``{song_title}``")
         await ctx.respond(embed=embed)
 
     @discord.slash_command(description=config.CommandDescription.PREV)

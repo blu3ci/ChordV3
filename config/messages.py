@@ -10,6 +10,7 @@ class CommandDescription(StrEnum):
     RESUME: str = "Resumes the current song."
     PAUSE: str = "Pauses the song."
     SKIP: str = "Skip to the next song."
+    SKIPTO: str = "Skip to the selected song."
     PREV: str = "Play the previous song."
     VOLUME: str = "Gets/Sets the volume"
     NO_DISCONNECT_MODE: str = "Prevents the bot from disconnecting (toggle)"
@@ -30,6 +31,7 @@ class CommandArgDescription(StrEnum):
     SONG_NAME: str = "Name of the song"
     VOLUME_VALUE: str = "Volume percentage"
     SEEK: str = "Timestamp to seek to. Ex: 0:2:50"
+    SKIPTO: str = "Song to skip to"
     EFFECT: str = "Effect to apply to the song"
     SONG_LYRICS: str = "The song to get the lyrics for"
 
@@ -48,6 +50,7 @@ class Message(StrEnum):
     BOT_IS_NOT_PLAYING: str = "❌ The bot isn't playing anything"
     BOT_IS_PLAYING: str = "❌ The bot is already playing"
     SKIPPED: str = "⏭ Skipped"
+    SKIPPEDTO: str = "⏭ Skipped to "
     SHUFFLED_PLAYLIST: str = "🔀 Shuffled playlist"
     PLAYLIST_LOOP_ON: str = "🔁 Loop playlist turned on"
     PLAYLIST_LOOP_OFF: str = "🔁 Loop playlist turned off"
