@@ -31,7 +31,7 @@ class Player(discord.VoiceClient):
         self._player_start_time: datetime.datetime | None = None
 
     @property
-    def get_player_position(self) -> int:
+    def player_position(self) -> int:
         if not self.is_playing():
             return 0
 
@@ -98,7 +98,7 @@ class Player(discord.VoiceClient):
         await self._update_ffmpeg_options(before_options=f"-ss {position}")
 
     async def set_effect(self, effect: str) -> None:
-        player_pos = self.get_player_position
+        player_pos = self.player_position
         await self._update_ffmpeg_options(
             options=f'-af "{effect}"' if effect else "", overwrite=True,
         )

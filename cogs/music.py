@@ -336,6 +336,12 @@ class Music(discord.Cog):
 
         embed = ui.NowPlayingEmbed(voice_client.playlist.current)
 
+        duration_index = 1
+        duration_field = embed.fields[duration_index]
+        duration_value = duration_field.value.replace("``", "")
+
+        duration_field.value = f"``{ui.NowPlayingEmbed.parse_duration(voice_client.player_position)}/{duration_value}``"
+
         await ctx.respond(embed=embed)
 
     @discord.slash_command(description=config.CommandDescription.PLAYLIST)
