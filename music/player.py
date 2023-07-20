@@ -58,14 +58,14 @@ class Player(discord.VoiceClient):
         self._playlist.reset()
         self._voice_channel_timeout_task.cancel()
 
-    async def play(self) -> None:
+    async def play(self, song: Song | PartialSong = None) -> None:
         if self.is_playing() or self.is_paused():
-            song: Song = self._playlist.queue[-1]
+            song: Song | PartialSong = song or self._playlist.queue[-1]
             embed = ui.QueuedEmbed(song)
             await song.context.respond(embed=embed)
             return
 
-        song: Song = self._playlist.next_song()
+        song: Song | PartialSong = self._playlist.next_song()
 
         if song is None:
             return

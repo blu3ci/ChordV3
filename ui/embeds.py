@@ -3,7 +3,7 @@ import datetime
 from discord import Embed
 
 import config
-from music import Song
+from music import Song, PartialSong
 
 
 class BasicEmbed(Embed):
@@ -35,6 +35,6 @@ class NowPlayingEmbed(BasicEmbed):
 
 
 class QueuedEmbed(NowPlayingEmbed):
-    def __init__(self, song: Song, *args, **kwargs):
+    def __init__(self, song: Song | list[PartialSong], *args, **kwargs):
         super().__init__(song, *args, **kwargs)
         self.title = config.Message.QUEUED

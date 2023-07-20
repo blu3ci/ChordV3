@@ -84,6 +84,8 @@ class Downloader:
             return await self._extract_spotify_playlist(url)
         elif self.get_song_type(url) == SongType.SPOTIFY_ALBUM:
             return await self._extract_spotify_album(url)
+        elif self.get_song_type(url) == SongType.SPOTIFY_ARTIST:
+            return await self._extract_spotify_artist(url)
         elif self.get_song_type(url) == SongType.CUSTOM:
             return await self.convert_to_song(
                 {
@@ -155,6 +157,18 @@ class Downloader:
 
         return songs
 
+    async def _extract_spotify_artist(self, url: str) -> list[PartialSong]:
+        try:
+            results = self.spotify_api.artist_top_tracks(url)
+        except SpotifyException:
+            raise utils.FailedToDownloadSongError(url)
+
+        coros = [self.convert_to_partial_spotify_song(track) for track in results["tracks"]]
+
+        songs: list[PartialSong] = await asyncio.gather(*coros)
+
+        return songs
+
     async def convert_to_song(self, result_data: dict) -> Song:
         url = result_data["webpage_url"]
 
@@ -203,6 +217,7 @@ class Downloader:
             SongType.SPOTIFY_TRACK: r"https://open.spotify.com/track/\w+",
             SongType.SPOTIFY_PLAYLIST: r"https://open.spotify.com/playlist/\w+",
             SongType.SPOTIFY_ALBUM: r"https://open.spotify.com/album/\w+",
+            SongType.SPOTIFY_ARTIST: r"https://open.spotify.com/artist/\w+",
         }
 
         for song_type, regex in regexes.items():

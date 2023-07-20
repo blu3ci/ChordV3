@@ -9,6 +9,7 @@ class SongType(Enum):
     SPOTIFY_TRACK = auto()
     SPOTIFY_ALBUM = auto()
     SPOTIFY_PLAYLIST = auto()
+    SPOTIFY_ARTIST = auto()
     CUSTOM = auto()
 
 

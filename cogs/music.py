@@ -110,7 +110,10 @@ class Music(discord.Cog):
 
         voice_client.playlist.add_song(song)
 
-        await voice_client.play()
+        if isinstance(song, list):
+            song = song[0]
+
+        await voice_client.play(song=song)
 
     @discord.slash_command(description=config.CommandDescription.STOP)
     @utils.perform_pre_checks
