@@ -102,6 +102,10 @@ class Music(discord.Cog):
         if not ctx.voice_client:
             await self.bot.get_cog("General").connect(ctx, None)
 
+        embed = ui.ChordEmbed(config.Message.SEARCH)
+
+        await ctx.respond(embed=embed)
+
         voice_client: music.Player = ctx.voice_client
 
         song: music.Song | music.PartialSong | list[music.PartialSong] = await voice_client.downloader.get_song(

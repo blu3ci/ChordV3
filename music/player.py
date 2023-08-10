@@ -5,6 +5,7 @@ import discord
 
 import config
 import ui
+import utils
 from logger import setup_logger
 
 from .downloader import Downloader
@@ -71,6 +72,9 @@ class Player(discord.VoiceClient):
             return
 
         song = await self.partial_song_to_song(song)
+        
+        if song is None:
+            await self.play()
 
         source = discord.FFmpegPCMAudio(
             song.audio_source_url,
@@ -86,7 +90,7 @@ class Player(discord.VoiceClient):
         self._player.source = discord.PCMVolumeTransformer(self._player.source, (float(self._volume) / 100.0))
 
         embed = ui.NowPlayingEmbed(song)
-        await song.context.respond(embed=embed)
+        await song.context.channel.send(embed=embed)
 
     async def move_to(self, channel: discord.VoiceChannel) -> None:
         await super().move_to(channel=channel)
@@ -168,13 +172,16 @@ class Player(discord.VoiceClient):
             else:
                 t1 = datetime.datetime.now()
 
-    async def partial_song_to_song(self, partial_song: PartialSong | Song) -> Song:
+    async def partial_song_to_song(self, partial_song: PartialSong | Song) -> Song | None:
         if hasattr(partial_song, "audio_source_url"):
             return partial_song
 
-        song: Song = await self.downloader.get_song(
-            partial_song.context, f"{partial_song.title} by {partial_song.uploader} lyrics"
-        )
+        try:
+            song: Song = await self.downloader.get_song(
+                partial_song.context, f"{partial_song.title} by {partial_song.uploader} lyrics"
+            )
+        except utils.FailedToDownloadSongError:
+            return None
 
         song.title = partial_song.title
         song.original_url = partial_song.original_url

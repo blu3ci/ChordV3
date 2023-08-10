@@ -44,6 +44,7 @@ class Message(StrEnum):
     BOT_NOT_IN_VC: str = "❌ I am not connected to any voice channels"
     AUTHOR_HAS_TO_BE_IN_SAME_VC_AS_BOT: str = "❌ You need to be in the same VC as the bot to use this"
     BOT_LEFT_VC: str = "✅ Left "
+    SEARCH: str = "🔍  Searching..."
     STOPPED: str = "⏹️ Stopped"
     PAUSED: str = "⏸️ Paused"
     RESUMED: str = "▶️ Resumed"
