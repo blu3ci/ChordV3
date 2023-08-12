@@ -3,7 +3,7 @@ import datetime
 from discord import Embed
 
 import config
-from music import Song, PartialSong
+from music import PartialSong, Song
 
 
 class BasicEmbed(Embed):

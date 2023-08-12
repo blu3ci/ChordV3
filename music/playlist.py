@@ -66,7 +66,8 @@ class Playlist:
             self._queue_history.pop()
 
         if played_song is not None:
-            self._queue_history.appendleft(played_song)
+            if isinstance(played_song, Song):
+                self._queue_history.appendleft(played_song)
 
             if self._loop:
                 self._queue.appendleft(played_song)

@@ -64,6 +64,7 @@ class Message(StrEnum):
     COULD_NOT_FIND_LYRICS: str = "❌ Could not find the lyrics for this song"
     COULD_NOT_FIND_SONG: str = "❌ Could not find the song "
     COULD_NOT_PARSE_TIMESTAMP: str = "❌ Incorrect usage. Use the ``H:M:S`` format"
+    CURRENT_EFFECT: str = "📼 The current effect is "
     EFFECT: str = "📼 Set the effect to "
     PREV_SONG: str = "⏮️ Playing previous song"
     NO_PREV_SONG: str = "❌ There isn't a previous song to play"

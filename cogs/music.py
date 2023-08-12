@@ -128,6 +128,7 @@ class Music(discord.Cog):
             raise utils.BotNotPlayingError
 
         voice_client.playlist.clear()
+        voice_client.current_effect = None
         voice_client.stop()
 
         embed = ui.ChordEmbed(config.Message.STOPPED)
@@ -419,7 +420,7 @@ class Music(discord.Cog):
         effect: Option(
             str,
             config.CommandArgDescription.EFFECT,
-            required=True,
+            required=False,
             autocomplete=discord.utils.basic_autocomplete(config.EFFECTS),
         ),
     ):
@@ -430,6 +431,17 @@ class Music(discord.Cog):
 
         if not voice_client.is_playing():
             raise utils.BotNotPlayingError
+
+        if not effect:
+            current_effect = (
+                [i for i in config.EFFECTS if config.EFFECTS[i] == voice_client.current_effect][0]
+                if voice_client.current_effect
+                else None
+            )
+            
+            embed = ui.ChordEmbed(f"{config.Message.CURRENT_EFFECT}{current_effect}")
+            await ctx.respond(embed=embed)
+            return
 
         if effect not in config.EFFECTS.keys():
             raise utils.InvalidInputError(effect)

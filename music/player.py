@@ -31,6 +31,8 @@ class Player(discord.VoiceClient):
 
         self._player_start_time: datetime.datetime | None = None
 
+        self._current_effect: str | None = None
+
     @property
     def player_position(self) -> int:
         if not self.is_playing():
@@ -46,6 +48,14 @@ class Player(discord.VoiceClient):
         duration = (datetime.datetime.now() - self._player_start_time).total_seconds()
 
         return int(duration + seek_time)
+
+    @property
+    def current_effect(self) -> str | None:
+        return self._current_effect
+
+    @current_effect.setter
+    def current_effect(self, effect: str) -> None:
+        self._current_effect = effect
 
     async def connect(self, *, reconnect: bool = True, timeout: float | None = None) -> None:
         await super().connect(reconnect=reconnect, timeout=timeout)
@@ -72,22 +82,16 @@ class Player(discord.VoiceClient):
             return
 
         song = await self.partial_song_to_song(song)
-        
+
         if song is None:
             await self.play()
+            return
 
-        source = discord.FFmpegPCMAudio(
-            song.audio_source_url,
-            executable=config.FFMPEG_EXEC_LOCATION,
-            before_options=self._ffmpeg_options["before_options"],
-            options=self._ffmpeg_options["options"],
-        )
+        source = await self.get_audio_source(song)
 
         super().play(source, after=lambda e: self._next_song_event())
 
         self._player_start_time = datetime.datetime.now()
-
-        self._player.source = discord.PCMVolumeTransformer(self._player.source, (float(self._volume) / 100.0))
 
         embed = ui.NowPlayingEmbed(song)
         await song.context.channel.send(embed=embed)
@@ -103,10 +107,31 @@ class Player(discord.VoiceClient):
 
     async def set_effect(self, effect: str) -> None:
         player_pos = self.player_position
-        await self._update_ffmpeg_options(
-            options=f'-af "{effect}"' if effect else "", overwrite=True,
+
+        self._current_effect = effect if not "" else None
+
+        self.source = await self.get_audio_source(self._playlist.current, player_pos)
+
+    async def get_audio_source(self, song: Song, position: int = 0):
+        before_options = self._ffmpeg_options["before_options"]
+        options = self._ffmpeg_options["options"]
+
+        before_options = f"{before_options} -ss {position}"
+
+        if self._current_effect:
+            options = f"{options} -af {self._current_effect}"
+
+        source = discord.PCMVolumeTransformer(
+            discord.FFmpegPCMAudio(
+                song.audio_source_url,
+                executable=config.FFMPEG_EXEC_LOCATION,
+                before_options=before_options,
+                options=options,
+            ),
+            (float(self._volume) / 100.0),
         )
-        await self._update_ffmpeg_options(before_options=f"-ss {player_pos}")
+
+        return source
 
     async def _update_ffmpeg_options(
         self, before_options: str | None = None, options: str | None = None, overwrite: bool = False
