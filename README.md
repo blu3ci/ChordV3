@@ -1,5 +1,5 @@
 <h1 align="center"><img src=".github/images/chord.svg" title="pycord-bot-template" width="100px" style="border-radius:100%;"/></h1>
-<h1 align="center">Chord Rewrite</h1>
+<h1 align="center">ChordV3</h1>
 <p align="center">Made with Python 3.11.1</p>
 
 ## ✨ Features
