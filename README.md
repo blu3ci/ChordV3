@@ -7,7 +7,7 @@
 - ✅ Support for slash commands
 - 👍 Easy to install and deploy
 - ⚡ Very fast
-- 🪄 Audio effects build in
+- 🪄 Audio effects built in
 - 🔀 Support for a variety of playback controls
 - 📃 State of the art lyrics searching (finds lyrics to 99% of songs with accurate results)
 
