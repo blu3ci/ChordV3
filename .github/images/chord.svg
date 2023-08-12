@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1000.0001"
+   height="1000.0001"
+   viewBox="0 0 264.58335 264.58335"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="Unnamed document 1"
+   inkscape:export-filename="chordlogo.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false">
+    <inkscape:grid
+       id="grid1"
+       units="mm"
+       originx="0"
+       originy="0"
+       spacingx="0.99999999"
+       spacingy="0.99999999"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30"
+       visible="false" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1">
+    <linearGradient
+       id="linearGradient24"
+       inkscape:collect="always">
+      <stop
+         style="stop-color:#5405bb;stop-opacity:1;"
+         offset="0"
+         id="stop24" />
+      <stop
+         style="stop-color:#2705bb;stop-opacity:1;"
+         offset="1"
+         id="stop25" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient24"
+       id="linearGradient25"
+       x1="0"
+       y1="132.29167"
+       x2="264.58334"
+       y2="132.29167"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="opacity:1;fill:url(#linearGradient25);fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-linecap:round;paint-order:markers fill stroke"
+       id="rect24"
+       width="264.58334"
+       height="264.58334"
+       x="0"
+       y="0"
+       inkscape:label="rect24" />
+    <path
+       id="path2"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-linecap:round;paint-order:markers fill stroke"
+       d="m 122.38116,55.885994 a 77.141937,77.141937 0 0 0 -63.003906,75.669286 77.141937,77.141937 0 0 0 77.142066,77.14206 77.141937,77.141937 0 0 0 68.68676,-42.37829 z m -9.45627,31.149003 59.83614,79.783243 c -9.49296,9.60938 -22.73821,15.58267 -36.27737,15.62127 -26.6182,-0.0219 -50.826836,-24.23141 -50.84806,-50.84961 0.04863,-18.33729 11.365403,-35.719599 27.28929,-44.554903 z" />
+  </g>
+</svg>
