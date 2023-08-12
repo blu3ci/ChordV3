@@ -438,7 +438,7 @@ class Music(discord.Cog):
                 if voice_client.current_effect
                 else None
             )
-            
+
             embed = ui.ChordEmbed(f"{config.Message.CURRENT_EFFECT}{current_effect}")
             await ctx.respond(embed=embed)
             return

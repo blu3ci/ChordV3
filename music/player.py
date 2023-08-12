@@ -133,37 +133,6 @@ class Player(discord.VoiceClient):
 
         return source
 
-    async def _update_ffmpeg_options(
-        self, before_options: str | None = None, options: str | None = None, overwrite: bool = False
-    ) -> None:
-        song: Song = self._playlist.current
-
-        if not overwrite:
-            ffmpeg_options = self._ffmpeg_options.copy()
-        else:
-            ffmpeg_options = self._ffmpeg_options
-            ffmpeg_options.update(config.FFMPEG_OPTIONS)
-
-        old_before_options = ffmpeg_options["before_options"]
-        old_options = ffmpeg_options["options"]
-
-        ffmpeg_options.update(
-            {
-                "before_options": old_before_options + (f" {before_options}" if before_options else ""),
-                "options": old_options + (f" {options}" if options else ""),
-            }
-        )
-
-        self.source = discord.PCMVolumeTransformer(
-            discord.FFmpegPCMAudio(
-                song.audio_source_url,
-                executable=config.FFMPEG_EXEC_LOCATION,
-                before_options=ffmpeg_options["before_options"],
-                options=ffmpeg_options["options"],
-            ),
-            (float(self._volume) / 100.0),
-        )
-
     @property
     def volume(self) -> int:
         return self._volume
