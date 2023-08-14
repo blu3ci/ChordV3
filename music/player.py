@@ -172,7 +172,7 @@ class Player(discord.VoiceClient):
 
         try:
             song: Song = await self.downloader.get_song(
-                partial_song.context, f"{partial_song.title} by {partial_song.uploader} lyrics"
+                partial_song.context, f"{partial_song.title} by {partial_song.uploader} audio"
             )
         except utils.FailedToDownloadSongError:
             return None
