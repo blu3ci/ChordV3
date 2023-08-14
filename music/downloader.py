@@ -112,7 +112,7 @@ class Downloader:
         except SpotifyException:
             raise utils.FailedToDownloadSongError(url)
 
-        return self.convert_to_partial_spotify_song(results)
+        return await self.convert_to_partial_spotify_song(results)
 
     async def _extract_spotify_playlist(self, url: str) -> list[PartialSong]:
         try:
