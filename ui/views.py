@@ -58,7 +58,7 @@ class PlaylistPaginatorView(View):
                 if index == self.current_page * self.separator:
                     break
 
-                formatted_playlist += f"\n**``{index + 1}`` - {track.title} - {track.requester} - ``{ui.NowPlayingEmbed.parse_duration(track.duration)}``**"  # noqa
+                formatted_playlist += f"\n**``{index + 1}`` - [{track.title}](<{track.original_url}>) - {track.requester} - ``{ui.NowPlayingEmbed.parse_duration(track.duration)}``**"  # noqa
         except AttributeError:
             self.total_pages = 0
 

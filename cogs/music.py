@@ -6,6 +6,7 @@ import httpx
 from bs4 import BeautifulSoup
 from discord import Option
 from discord.ext import commands
+from youtubesearchpython import VideosSearch
 
 import config
 import music
@@ -21,7 +22,7 @@ class Music(discord.Cog):
         self.bot = bot
 
     @staticmethod
-    async def get_video_results(ctx: discord.AutocompleteContext) -> list[str]:
+    def get_video_results(ctx: discord.AutocompleteContext) -> list[str]:
         song = ctx.options.get("song")
 
         if not bool(song.strip()):
@@ -37,12 +38,15 @@ class Music(discord.Cog):
 
             return []
 
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                f"http://suggestqueries.google.com/complete/search?client=youtube&ds=yt&client=firefox&q={song}"
-            )
+        videos_search = VideosSearch(song, limit=15)
 
-        return response.json()[1]
+        results = videos_search.result()
+
+        parsed_results = [
+            discord.OptionChoice(name=result["title"], value=result["link"]) for result in results["result"]
+        ]
+
+        return parsed_results
 
     @staticmethod
     async def get_lyrics(search: str) -> str | None:
@@ -94,7 +98,7 @@ class Music(discord.Cog):
         song: Option(
             str,
             config.CommandArgDescription.PLAY_SONG,
-            autocomplete=discord.utils.basic_autocomplete(get_video_results),
+            autocomplete=get_video_results,
         ),
     ):
         await ctx.defer()

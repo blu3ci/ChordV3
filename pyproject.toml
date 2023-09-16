@@ -27,6 +27,7 @@ spotipy = "^2.23.0"
 httpx = {extras = ["http2"], version = "^0.24.1"}
 beautifulsoup4 = "^4.12.2"
 lyricsgenius = "^3.0.1"
+youtube-search-python = "^1.6.6"
 
 
 [build-system]

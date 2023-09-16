@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN") or ""
-EMBED_COLOR = 0x3205bb
+EMBED_COLOR = 0x3205BB
 
 MAX_VOLUME = 200
 DEFAULT_VOLUME = 100
