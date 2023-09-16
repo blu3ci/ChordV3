@@ -39,24 +39,6 @@ class Downloader:
             )
         )
 
-    @staticmethod
-    async def get_youtube_search_results(query: str):
-        ytdlp_opts = {
-            "extract_flat": True,
-            "quiet": True,
-            "noplaylist": True,
-            "sleep_interval": 0,
-            "nocheckcertificate": True,
-        }
-
-        with yt_dlp.YoutubeDL(ytdlp_opts) as ydl:
-            loop = asyncio.get_event_loop()
-            partial_func = partial(ydl.extract_info, f"ytsearch10:{query}", download=False)
-
-            results = await loop.run_in_executor(None, partial_func)
-
-        return [(result["title"], result["url"]) for result in results["entries"]]
-
     async def get_song(self, ctx: discord.ApplicationContext, query: str) -> Song | PartialSong | list[PartialSong]:
         self.ctx = ctx
 
