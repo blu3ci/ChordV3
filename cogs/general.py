@@ -77,9 +77,10 @@ class General(discord.Cog):
 
     @discord.slash_command(description=config.CommandDescription.STATS)
     async def stats(self, ctx: discord.ApplicationContext):
-        uptime = int((datetime.datetime.now() - self.bot.startup_time).total_seconds())
-        uptime = datetime.time(second=uptime)
-        uptime = f"{uptime.hour} Hrs・{uptime.minute} Mins・{uptime.second} Secs"
+        total_seconds = int((datetime.datetime.now() - self.bot.startup_time).total_seconds())
+        hours, remainder = divmod(total_seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        uptime = f"{hours} Hrs・{minutes} Mins・{seconds} Secs"
 
         embed = ui.BasicEmbed(title=config.Message.STATS)
 
