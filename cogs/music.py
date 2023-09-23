@@ -38,8 +38,7 @@ class Music(discord.Cog):
 
             return []
 
-        videos_search = VideosSearch(song, limit=15)
-
+        videos_search = VideosSearch(song, limit=10)
         results = videos_search.result()
 
         parsed_results = [
@@ -88,18 +87,17 @@ class Music(discord.Cog):
         if voice_client is None:
             return []
 
-        return [f"{index + 2}. {song.title}"[:100] for index, song in enumerate(voice_client.playlist.queue)]
+        return [
+            discord.OptionChoice(name=song.title, value=str(index + 1))
+            for index, song in enumerate(voice_client.playlist.queue)
+        ]
 
     @discord.slash_command(description=config.CommandDescription.PLAY)
     @utils.perform_pre_checks
     async def play(
         self,
         ctx: discord.ApplicationContext,
-        song: Option(
-            str,
-            config.CommandArgDescription.PLAY_SONG,
-            autocomplete=get_video_results,
-        ),
+        song: Option(str, config.CommandArgDescription.PLAY_SONG, autocomplete=get_video_results,),
     ):
         await ctx.defer()
 
@@ -170,15 +168,16 @@ class Music(discord.Cog):
         if not voice_client.is_playing():
             raise utils.BotNotPlayingError
 
-        queue_selection = await self.get_queue(await self.bot.get_autocomplete_context(ctx.interaction))
+        if song.isnumeric():
+            song = int(song)
 
-        if song not in queue_selection:
+        if isinstance(song, str) or len(voice_client.playlist.queue) - 1 < song:
             raise utils.InvalidInputError(song)
 
-        song_index = int(song.split(".")[0]) - 2
-        song_title = voice_client.playlist.queue[song_index].title
+        song -= 1
+        song_title = voice_client.playlist.queue[song].title
 
-        voice_client.playlist.skipto(song_index)
+        voice_client.playlist.skipto(song)
         voice_client.stop()
 
         embed = ui.ChordEmbed(f"{config.Message.SKIPPEDTO} ``{song_title}``")
@@ -425,7 +424,9 @@ class Music(discord.Cog):
             str,
             config.CommandArgDescription.EFFECT,
             required=False,
-            autocomplete=discord.utils.basic_autocomplete(config.EFFECTS),
+            autocomplete=discord.utils.basic_autocomplete(
+                [discord.OptionChoice(name=name, value=value) for name, value in config.EFFECTS.items()]
+            ),
         ),
     ):
         voice_client: music.Player = ctx.voice_client
@@ -447,12 +448,14 @@ class Music(discord.Cog):
             await ctx.respond(embed=embed)
             return
 
-        if effect not in config.EFFECTS.keys():
+        if effect not in config.EFFECTS.values():
             raise utils.InvalidInputError(effect)
 
-        await voice_client.set_effect(config.EFFECTS[effect])
+        await voice_client.set_effect(effect)
 
-        embed = ui.ChordEmbed(f"{config.Message.EFFECT}{effect}")
+        current_effect = [i for i in config.EFFECTS if config.EFFECTS[i] == voice_client.current_effect][0]
+
+        embed = ui.ChordEmbed(f"{config.Message.EFFECT}{current_effect}")
 
         await ctx.respond(embed=embed)
 

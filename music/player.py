@@ -91,8 +91,6 @@ class Player(discord.VoiceClient):
 
         super().play(source, after=lambda e: self._next_song_event())
 
-        self._player_start_time = datetime.datetime.now()
-
         embed = ui.NowPlayingEmbed(song)
         await song.context.channel.send(embed=embed)
 
@@ -103,7 +101,7 @@ class Player(discord.VoiceClient):
 
     async def seek(self, position: int) -> None:
         self._player_start_time = datetime.datetime.now()
-        await self._update_ffmpeg_options(before_options=f"-ss {position}")
+        self.source = await self.get_audio_source(self._playlist.current, position)
 
     async def set_effect(self, effect: str) -> None:
         player_pos = self.player_position
@@ -130,6 +128,8 @@ class Player(discord.VoiceClient):
             ),
             (float(self._volume) / 100.0),
         )
+
+        self._player_start_time = datetime.datetime.now()
 
         return source
 

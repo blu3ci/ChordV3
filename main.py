@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 import discord
@@ -16,6 +17,8 @@ class ChordBot(discord.Bot):
         log.info("Active in %i servers | %s" % (len(bot.guilds), ", ".join([guild.name for guild in bot.guilds])))
 
         setup_logger("discord", level=logging.INFO)
+
+        self.startup_time = datetime.datetime.now()
 
     async def on_application_command(self, context: discord.ApplicationContext):
         log.info("/%s has been executed by %s" % (context.command, context.author.name))

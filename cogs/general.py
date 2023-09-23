@@ -1,3 +1,5 @@
+import datetime
+
 import discord
 from discord import Option
 from discord.ext import commands
@@ -34,11 +36,7 @@ class General(discord.Cog):
     async def connect(
         self,
         ctx: discord.ApplicationContext,
-        channel: Option(
-            discord.VoiceChannel,
-            config.CommandArgDescription.CONNECT_CHANNEL,
-            required=False,
-        ),
+        channel: Option(discord.VoiceChannel, config.CommandArgDescription.CONNECT_CHANNEL, required=False,),
     ):
         voice_client: music.Player = ctx.voice_client
 
@@ -72,6 +70,26 @@ class General(discord.Cog):
 
         await ctx.respond(embed=embed)
         await voice_client.disconnect()
+
+    @discord.slash_command()
+    async def stats(self, ctx: discord.ApplicationContext):
+        uptime = int((datetime.datetime.now() - self.bot.startup_time).total_seconds())
+        uptime = datetime.time(second=uptime)
+        uptime = f"{uptime.hour} Hrs・{uptime.minute} Mins・{uptime.second} Secs"
+
+        embed = ui.BasicEmbed(title=config.Message.STATS)
+
+        embed.add_field(
+            name="General Information",
+            value=f"```yaml\nName: {self.bot.user.name} [{self.bot.user.id}]\nUptime: {uptime}\nLatency: {self.bot.latency}```",  # noqa
+        )
+
+        embed.add_field(
+            name="Bot Stats",
+            value=f"```yaml\nGuilds: {len(self.bot.guilds)}\nCommands: {len(self.bot.commands)}\npy-cord: v{discord.__version__}```",  # noqa
+        )
+
+        await ctx.respond(embed=embed)
 
     @commands.Cog.listener()
     async def on_ready(self):

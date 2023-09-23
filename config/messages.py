@@ -75,3 +75,4 @@ class Message(StrEnum):
     NO_DISCONNECT_MODE_OFF: str = "♾️ Disabled 24/7 mode"
     MISSING_PERMS: str = "❌ The bot is missing the required permissions to join this channel"
     INVALID_INPUT: str = "❌ Invalid input "
+    STATS: str = "📊 Bot Statistics"
