@@ -36,7 +36,11 @@ class General(discord.Cog):
     async def connect(
         self,
         ctx: discord.ApplicationContext,
-        channel: Option(discord.VoiceChannel, config.CommandArgDescription.CONNECT_CHANNEL, required=False,),
+        channel: Option(
+            discord.VoiceChannel,
+            config.CommandArgDescription.CONNECT_CHANNEL,
+            required=False,
+        ),
     ):
         voice_client: music.Player = ctx.voice_client
 
@@ -71,7 +75,7 @@ class General(discord.Cog):
         await ctx.respond(embed=embed)
         await voice_client.disconnect()
 
-    @discord.slash_command()
+    @discord.slash_command(description=config.CommandDescription.STATS)
     async def stats(self, ctx: discord.ApplicationContext):
         uptime = int((datetime.datetime.now() - self.bot.startup_time).total_seconds())
         uptime = datetime.time(second=uptime)

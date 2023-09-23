@@ -22,6 +22,7 @@ class CommandDescription(StrEnum):
     EFFECT: str = "Sets the effect for the current song"
     NOW_PLAYING: str = "Displays the song that is currently playing"
     PLAYLIST: str = "Gets the current playlist"
+    STATS: str = "Displays the bot's stats"
 
 
 class CommandArgDescription(StrEnum):
