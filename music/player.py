@@ -103,10 +103,10 @@ class Player(discord.VoiceClient):
         self._player_start_time = datetime.datetime.now()
         self.source = await self.get_audio_source(self._playlist.current, position)
 
-    async def set_effect(self, effect: str) -> None:
+    async def set_effect(self, effect: str) -> None:        
         player_pos = self.player_position
 
-        self._current_effect = effect if not "" else None
+        self._current_effect = effect if not effect == "reset" else None
 
         self.source = await self.get_audio_source(self._playlist.current, player_pos)
 

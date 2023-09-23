@@ -1,5 +1,5 @@
 EFFECTS = {
-    "reset": "",
+    "reset": "reset",
     "bassboost_low": "bass=g=15:f=110:w=0.3",
     "bassboost": "bass=g=20:f=110:w=0.3",
     "bassboost_high": "bass=g=30:f=110:w=0.3",

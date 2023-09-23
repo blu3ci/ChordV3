@@ -97,7 +97,11 @@ class Music(discord.Cog):
     async def play(
         self,
         ctx: discord.ApplicationContext,
-        song: Option(str, config.CommandArgDescription.PLAY_SONG, autocomplete=get_video_results,),
+        song: Option(
+            str,
+            config.CommandArgDescription.PLAY_SONG,
+            autocomplete=get_video_results,
+        ),
     ):
         await ctx.defer()
 
@@ -453,7 +457,11 @@ class Music(discord.Cog):
 
         await voice_client.set_effect(effect)
 
-        current_effect = [i for i in config.EFFECTS if config.EFFECTS[i] == voice_client.current_effect][0]
+        current_effect = (
+            [i for i in config.EFFECTS if config.EFFECTS[i] == voice_client.current_effect][0]
+            if voice_client.current_effect
+            else None
+        )
 
         embed = ui.ChordEmbed(f"{config.Message.EFFECT}{current_effect}")
 
