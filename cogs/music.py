@@ -62,12 +62,9 @@ class Music(discord.Cog):
         async with httpx.AsyncClient() as aclient:
             response = await aclient.get(genius_link[0])
 
-        with open("stuff.html", "w", encoding="utf-8") as f:
-            f.write(response.text)
-
         soup = BeautifulSoup(response.text.replace("<br/>", "\n"), "html.parser")
 
-        verses = soup.find_all(class_="Lyrics__Container-sc-1ynbvzw-5")
+        verses = soup.find_all(class_="Lyrics__Container-sc-1ynbvzw-1")
 
         lyrics = ""
 
