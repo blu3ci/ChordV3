@@ -16,6 +16,7 @@
 1. Clone the git repository with git
 ```
 git clone https://github.com/blu3ci/ChordV3.git
+cd ChordV3
 ```
 
 2. Create a .env file and copy and paste the contents within the .env.example file
